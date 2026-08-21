@@ -1,0 +1,17 @@
+/* Keeps navigation buttons inline on the same row */
+.tab-navigation {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.tab-navigation button {
+    display: inline-block;
+    width: auto;
+}
+
+/* Base style for tab panels */
+.tabs {
+    width: 100%;
+}

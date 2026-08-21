@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>An Impossible Game</title>
+    <title>Ordinal Upgrader</title>
     <link rel="stylesheet" href="style.css">
     </link>
 </head>
@@ -12,8 +12,28 @@
     <h1>An Impossible Game: where you click g<sub>Lim(ω-Y)</sub>(10) times</h1>
     <h2>Current number: <span id="current-number">0</span></h2>
     <h2>Which is equilvalent to: <span id="current-converted">0</span></h2>
-    <button id="click-button">Successor the ordinal base</button><button id="maximize-button">Maximize the ordinal base</button><br>
-    <button id="shift-button">Reach NaN to perform a factor shift</button>
+
+    <div class="tab-navigation">
+        <button id="ordinal-tab-open" onclick="showTab('ordinal-tab')">Ordinal</button>
+        <button id="automation-tab-open" onclick="showTab('automation-tab')">Automation</button>
+    </div>
+
+    <br>
+    <hr>
+
+    <div id="ordinal-tab" class="tabs">
+        <button id="click-button">Successor the ordinal base</button>
+        <button id="maximize-button">Maximize the ordinal base</button><br>
+
+        <h3 id="factor-shift-information">You have factor shift for 0 time, and the current base is 10</h3>
+        <button id="shift-button">Reach NaN to perform a factor shift</button><br><br>
+        <button id="automation-unlock-button" onclick="unlockautomation()">Reach
+            g<sub>&omega;<sup>&omega;+2</sup></sub>(10) to unlock automation tab!</button>
+    </div>
+
+    <div id="automation-tab" class="tabs">
+
+    </div>
 </body>
 
 <script src="conv.js"></script>
