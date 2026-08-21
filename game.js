@@ -4,6 +4,12 @@ let pathmaxlength = 100
 let factor_shift_level = 0;
 let automation_unlocked = false
 
+let successor_autoclicker_level = 0
+let maximize_autoclicker_level = 0
+
+let successor_autoclicker_cost = "1,2,3,2"
+let maximize_autoclicker_cost = "1,2,3,2"
+
 
 //Tabs
 let ordinal_tab = document.getElementById("ordinal-tab")
@@ -14,6 +20,11 @@ let successorButton = document.getElementById("click-button")
 let maximizeButton = document.getElementById("maximize-button")
 let factorshiftButton = document.getElementById("shift-button")
 let unlockautomationbtn = document.getElementById("automation-unlock-button")
+unlockautomationbtn.style.display = "none"
+
+let buySuccessorAutoclickerBtn = document.getElementById("buy-successor-autoclicker-button")
+let buyMaximizeAutoclickerBtn = document.getElementById("buy-maximize-autoclicker-button")
+
 
 let open_automation_btn = document.getElementById("automation-tab-open")
 open_automation_btn.style.display = "none" //hide for intl
@@ -23,6 +34,9 @@ open_automation_btn.style.display = "none" //hide for intl
 let numberdisplay = document.getElementById("current-number")
 let notationcoverted = document.getElementById("current-converted")
 let factor_shift_information = document.getElementById("factor-shift-information")
+
+let successorAutoclickerInfo = document.getElementById("successor-autoclicker-information")
+let maximizeAutoclickerInfo = document.getElementById("maximize-autoclicker-information")
 
 let factorshiftcost = [
     "1,2",                   // equivalent to 10 clicks
@@ -35,6 +49,23 @@ let factorshiftcost = [
     "Limit"                   // equivalent to END GAME
 ]
 
+
+
+////////////////////////////HELPER FUNCTIONS//////////////////////////////////////////
+
+//w-Y sequence sum extractor
+function extractsumterms(input) {
+    return input.split(/(?<!^),1/g).map((item, index) => {return index === 0 ? item : "1" + item;});
+    /* 
+    
+    an ordinal can be written in a sum of smaller ordinal
+    eg: w^3 + w^2 + w
+    this function extract those term into array : [w^3 , w^2 , w] (in symbolic form)
+
+    */
+}
+
+
 // Local Storage Save / Load Handlers
 function saveGame() {
     let saveData = {
@@ -42,7 +73,12 @@ function saveGame() {
         currentBase: currentBase,
         factor_shift_level: factor_shift_level,
         automation_unlocked: automation_unlocked,
-        pathmaxlength: pathmaxlength
+        pathmaxlength: pathmaxlength,
+        // Autoclicker levels and costs added to save data
+        successor_autoclicker_level: successor_autoclicker_level,
+        maximize_autoclicker_level: maximize_autoclicker_level,
+        successor_autoclicker_cost: successor_autoclicker_cost,
+        maximize_autoclicker_cost: maximize_autoclicker_cost
     };
     localStorage.setItem("y_sequence_incremental_save", JSON.stringify(saveData));
 }
@@ -60,6 +96,14 @@ function loadGame() {
                 open_automation_btn.style.display = automation_unlocked ? "block" : "none";
             }
             if (data.pathmaxlength !== undefined) pathmaxlength = data.pathmaxlength;
+            
+            // Restore Autoclicker levels and costs
+            if (data.successor_autoclicker_level !== undefined) successor_autoclicker_level = data.successor_autoclicker_level;
+            if (data.maximize_autoclicker_level !== undefined) maximize_autoclicker_level = data.maximize_autoclicker_level;
+            if (data.successor_autoclicker_cost !== undefined) successor_autoclicker_cost = data.successor_autoclicker_cost;
+            if (data.maximize_autoclicker_cost !== undefined) maximize_autoclicker_cost = data.maximize_autoclicker_cost;
+
+            unlockautomationbtn.style.display = ((currentBase == 3)? "block" : "none");
         } catch (e) {
             console.error("Failed to parse save data:", e);
         }
@@ -117,8 +161,15 @@ function display() {
     factorshiftButton.innerHTML = "Reach g<sub>" + convert_From_wY(cost, "2-shifted OCF") + "</sub>(" + currentBase + ") to perform a factor shift";
 
     factor_shift_information.innerHTML = "You have factor shift for " + factor_shift_level + ((factor_shift_level > 1) ? " times" : " time") + ", and the current base is " + currentBase
-    
-    unlockautomationbtn.innerHTML = (automation_unlocked)? "Unlocked Automation!" : "Reach g<sub>&omega;<sup>&omega;+2</sup></sub>(" + currentBase + ") to unlock automation tab!"
+
+    unlockautomationbtn.innerHTML = (automation_unlocked) ? "Unlocked Automation!" : "Reach g<sub>&omega;<sup>&omega;+2</sup></sub>(" + currentBase + ") to unlock automation tab!"
+
+    // Dynamic Autoclicker text and cost formatting
+    successorAutoclickerInfo.innerHTML = "You have " + successor_autoclicker_level + " successor autoclicker, which is clicking the successor button " + successor_autoclicker_level + ((successor_autoclicker_level == 1) ? " time" : " times") + " per second"
+    buySuccessorAutoclickerBtn.innerHTML = "Buy Successor Autoclicker for g<sub>" + convert_From_wY(successor_autoclicker_cost, "2-shifted OCF") + "</sub>(" + currentBase + ")"
+
+    maximizeAutoclickerInfo.innerHTML = "You have " + maximize_autoclicker_level + " maximize autoclicker, which is clicking the maximize button " + maximize_autoclicker_level + ((maximize_autoclicker_level == 1) ? " time" : " times") + " per second"
+    buyMaximizeAutoclickerBtn.innerHTML = "Buy Maximize Autoclicker for g<sub>" + convert_From_wY(maximize_autoclicker_cost, "2-shifted OCF") + "</sub>(" + currentBase + ")"
 }
 
 function buyfactorshift() {
@@ -127,20 +178,34 @@ function buyfactorshift() {
         factor_shift_level++;
         currentBase--;
         currentOrdinal = Y_Sequence.ZERO;
-        saveGame();
+    }
+    display();
+    unlockautomationbtn.style.display = ((currentBase == 3)? "block" : "none")
+}
+
+function unlockautomation() {
+    let cost = "1,2,3,2"
+    if (Y_Sequence.cmp(cost, currentOrdinal) <= 0) {
+        open_automation_btn.style.display = "block"
+        automation_unlocked = true
     }
     display();
 }
 
-function unlockautomation() {
-    let cost = "1,2,3,2,2"
-    if (Y_Sequence.cmp(cost, currentOrdinal) <= 0) {
-        factor_shift_level = 0;
-        currentBase = 10;
-        currentOrdinal = "";
-        open_automation_btn.style.display = "block"
-        automation_unlocked = true
-        saveGame();
+function purchase_successor_autoclicker() {
+    if (Y_Sequence.cmp(successor_autoclicker_cost, currentOrdinal) <= 0) {
+        currentOrdinal = ""
+        successor_autoclicker_level++
+        successor_autoclicker_cost = maximizeordinal(successor_autoclicker_cost + "," + extractsumterms(successor_autoclicker_cost).at(-1),currentBase)
+    }
+    display();
+}
+
+function purchase_maximize_autoclicker() {
+    if (Y_Sequence.cmp(maximize_autoclicker_cost, currentOrdinal) <= 0) {
+        currentOrdinal = ""
+        maximize_autoclicker_level++
+        maximize_autoclicker_cost = maximizeordinal(maximize_autoclicker_cost + "," + extractsumterms(maximize_autoclicker_cost).at(-1),currentBase)
     }
     display();
 }
@@ -149,13 +214,11 @@ function unlockautomation() {
 successorButton.onclick = function () {
     currentOrdinal = successorordinal(currentOrdinal);
     display();
-    saveGame();
 }
 
 maximizeButton.onclick = function () {
     currentOrdinal = maximizeordinal(currentOrdinal, currentBase);
     display();
-    saveGame();
 }
 
 factorshiftButton.onclick = function () {
@@ -166,8 +229,36 @@ factorshiftButton.onclick = function () {
 loadGame();
 display();
 
+setInterval(() => {
+    saveGame();
+}, 5000);
 
+let lastSuccessorTick = Date.now();
+let lastMaximizeTick = Date.now();
 
+setInterval(() => {
+    const now = Date.now();
+
+    // Successor Autoclicker
+    if (successor_autoclicker_level > 0) {
+        const successorInterval = 1000 / successor_autoclicker_level;
+        if (now - lastSuccessorTick >= successorInterval) {
+            currentOrdinal = successorordinal(currentOrdinal);
+            lastSuccessorTick = now;
+            display();
+        }
+    }
+
+    // Maximize Autoclicker
+    if (maximize_autoclicker_level > 0) {
+        const maximizeInterval = 1000 / maximize_autoclicker_level;
+        if (now - lastMaximizeTick >= maximizeInterval) {
+            currentOrdinal = maximizeordinal(currentOrdinal, currentBase);
+            lastMaximizeTick = now;
+            display();
+        }
+    }
+}, 1);
 
 
 //SOME ULITIES
