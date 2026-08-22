@@ -6,6 +6,12 @@
     align-items: center;
 }
 
+html, body {
+  touch-action: manipulation;
+  /* Optional: disables rubber-band elastic scrolling in mobile Safari */
+  overscroll-behavior: none; 
+}
+
 .tab-navigation button {
     display: inline-block;
     width: auto;
