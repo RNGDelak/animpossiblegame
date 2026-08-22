@@ -327,7 +327,7 @@ function display() {
     // 3. Automation Tab
     unlockautomationbtn.innerHTML = automation_unlocked
         ? "Unlocked Automation!"
-        : `Reach ${formatG("&omega;<sup>&omega;+2</sup>", currentBase)} to unlock automation tab!`;
+        : `Reach ${formatG("&omega;<sup>&omega;+1</sup>", currentBase)} to unlock automation tab!`;
 
     const succTimes = successor_autoclicker_level === 1 ? "time" : "times";
     const succCost = convert_From_wY(successor_autoclicker_cost, "2-shifted OCF");
