@@ -9,13 +9,15 @@
 </head>
 
 <body style="background-image: linear-gradient(#adadad,#ffffff); background-repeat: no-repeat; background-size: auto;">
-    <h1>An Impossible Game: where you click g<sub>Lim(ω-Y)</sub>(10) times</h1>
+    <h1>An Impossible Game: where you click g<sub>Lim(ω-Y)</sub>(11) times</h1>
     <h2>Current number: <span id="current-number">0</span></h2>
     <h2>Which is equilvalent to: <span id="current-converted">0</span></h2>
 
     <div class="tab-navigation">
         <button id="ordinal-tab-open" onclick="showTab('ordinal-tab')">Ordinal</button>
-        <button id="automation-tab-open" onclick="showTab('automation-tab')">Automation</button>
+        <button id="automation-tab-open" onclick="showTab('automation-tab')" style="display: none;">Automation</button>
+        <button id="upgrade-tab-open" onclick="showTab('upgrade-tab')">Upgrade</button>
+        <button onclick="showTab('setting-tab')">Setting</button>
     </div>
 
     <br>
@@ -28,7 +30,7 @@
         <h3 id="factor-shift-information">You have factor shift for 0 time, and the current base is 10</h3>
         <button id="shift-button">Reach NaN to perform a factor shift</button><br><br>
         <button id="automation-unlock-button" onclick="unlockautomation()">Reach
-            g<sub>&omega;<sup>&omega;+2</sup></sub>(10) to unlock automation tab!</button>
+            g<sub>&omega;<sup>&omega;+1</sup></sub>(10) to unlock automation tab!</button>
     </div>
 
     <div id="automation-tab" class="tabs" style="display: none;">
@@ -36,6 +38,22 @@
         <h3 id="maximize-autoclicker-information">You have 0 maximize autoclicker, which is clicking the maximize button 0 time per second</h3>
         <button id="buy-successor-autoclicker-button" onclick="purchase_successor_autoclicker()">Buy Successor Autoclicker</button>
         <button id="buy-maximize-autoclicker-button" onclick="purchase_maximize_autoclicker()">Buy Maximize Autoclicker</button>
+    </div>
+
+    <div id="upgrade-tab" class="tabs" style="display: none;">
+        <h1 id="upgrade-successor-power-example" style="text-align: center;">g<sub>&omega;-Y(1,2,4)</sub>(11) ↦ g<sub>&omega;-Y(1,2,4,1)</sub>(11)</h1>
+        <h2 id="upgrade-successor-power-example-converted" style="text-align: center;">Which is equilvalent to: g<sub>&omega;-Y(&psi;<sub>0</sub>(&Omega;))</sub>(11) ↦ g<sub>&omega;-Y(&psi;<sub>0</sub>(&Omega;)+1)</sub>(11)</h2>
+        <h3 id="upgrade-successor-power-information" style="text-align: center;">Your current successor power is: 1</h3>
+        <br>
+        <button id="successor-maximize-button" onclick="maximizesuccessor()">Maximize the successor base for efficiency</button><br>
+        <h3 id="successor-upgrade-information">You have upgraded successor for 0 times, which equilvalent to the boost of x1 speed</h3>
+        <button id="successor-upgrade-purchase-button" onclick="purchase_successor_power_upgrade()">Upgrade successor power by 1 for: NaN</button><br>
+    </div>
+
+    <div id="setting-tab" class="tabs" style="display: none;">
+        <button onclick="resetGame()">HARD RESET</button>
+        <button onclick="exportGame()">Export Save</button>
+        <button onclick="importGame()">Import Save</button>
     </div>
 </body>
 
