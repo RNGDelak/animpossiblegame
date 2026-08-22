@@ -170,6 +170,8 @@ function display() {
 
     maximizeAutoclickerInfo.innerHTML = "You have " + maximize_autoclicker_level + " maximize autoclicker, which is clicking the maximize button " + maximize_autoclicker_level + ((maximize_autoclicker_level == 1) ? " time" : " times") + " per second"
     buyMaximizeAutoclickerBtn.innerHTML = "Buy Maximize Autoclicker for g<sub>" + convert_From_wY(maximize_autoclicker_cost, "2-shifted OCF") + "</sub>(" + currentBase + ")"
+
+unlockautomationbtn.style.display = ((currentBase == 3)? "block" : "none");
 }
 
 function buyfactorshift() {
