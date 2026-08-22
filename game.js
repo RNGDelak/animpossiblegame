@@ -239,7 +239,7 @@ function loadGame() {
             if (data.successorupgradecost !== undefined) successorupgradecost = data.successorupgradecost;
             if (data.successorupgradecostaddition !== undefined) successorupgradecostaddition = data.successorupgradecostaddition;
 
-            unlockautomationbtn.style.display = ((currentBase == 3) ? "block" : "none");
+            unlockautomationbtn.style.display = ((factor_shift_level == 7) ? "block" : "none");
         } catch (e) {
             console.error("Failed to parse save data:", e);
         }
@@ -368,7 +368,7 @@ function buyfactorshift() {
         currentOrdinal = Y_Sequence.ZERO;
     }
     display();
-    unlockautomationbtn.style.display = ((currentBase == 3) ? "block" : "none")
+    unlockautomationbtn.style.display = ((factor_shift_level == 7) ? "block" : "none")
 }
 
 function unlockautomation() {
