@@ -16,10 +16,6 @@
     width: 100%;
 }
 
-.html,body {
-    touch-action: none;
-}
-
 .scrollable {
   display: block;
   width: 100%;

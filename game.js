@@ -15,6 +15,13 @@ let successorlevel = 0
 let successorupgradecost = "1,2"
 let successorupgradecostaddition = "1,2"
 
+let successorupgradecost2 = "1,2,2"
+let successorupgradecostaddition2 = "1,2,1,2"
+
+let successorupgradecost3 = "1,2,3"
+let successorupgradecostaddition3 = "1,2,2"
+
+let successorupgradecost4 = "1,2,3,2"
 
 
 //Tabs
@@ -27,7 +34,6 @@ let maximizeButton = document.getElementById("maximize-button")
 let factorshiftButton = document.getElementById("shift-button")
 let unlockautomationbtn = document.getElementById("automation-unlock-button")
 unlockautomationbtn.style.display = "none"
-let successorupgradepurchasebutton = document.getElementById("successor-upgrade-purchase-button")
 
 let buySuccessorAutoclickerBtn = document.getElementById("buy-successor-autoclicker-button")
 let buyMaximizeAutoclickerBtn = document.getElementById("buy-maximize-autoclicker-button")
@@ -35,6 +41,11 @@ let buyMaximizeAutoclickerBtn = document.getElementById("buy-maximize-autoclicke
 
 let open_automation_btn = document.getElementById("automation-tab-open")
 open_automation_btn.style.display = "none" //hide for intl
+
+let successorupgradepurchasebutton = document.getElementById("successor-upgrade-purchase-button")
+let successorupgradepurchasebutton2 = document.getElementById("successor-upgrade-purchase-button2")
+let successorupgradepurchasebutton3 = document.getElementById("successor-upgrade-purchase-button3")
+let successorupgradepurchasebutton4 = document.getElementById("successor-upgrade-purchase-button4")
 
 
 //Display
@@ -50,6 +61,11 @@ let upgradesuccessorpowerexample = document.getElementById("upgrade-successor-po
 let upgradesuccessorpowerexampleconverted = document.getElementById("upgrade-successor-power-example-converted")
 let upgradesuccessorpowerinformation = document.getElementById("upgrade-successor-power-information")
 let successorupgradeinformation = document.getElementById("successor-upgrade-information")
+
+let succupgradeinfo = document.getElementById("succ-upgrade-info")
+let succupgradeinfo2 = document.getElementById("succ-upgrade-2-info")
+let succupgradeinfo3 = document.getElementById("succ-upgrade-3-info")
+let succupgradeinfo4 = document.getElementById("succ-upgrade-4-info")
 
 
 
@@ -155,42 +171,6 @@ function importGame() {
     }
 }
 
-function resetGame() {
-    if (!confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
-        return;
-    }
-
-    // Clear local storage
-    localStorage.removeItem("y_sequence_incremental_save");
-
-    // Reset game state variables to default values
-    currentOrdinal = Y_Sequence.ZERO;
-    currentBase = 11;
-    pathmaxlength = 100;
-    factor_shift_level = 0;
-    automation_unlocked = false;
-
-    successor_autoclicker_level = 0;
-    maximize_autoclicker_level = 0;
-
-    successor_autoclicker_cost = "1,2,3,2";
-    maximize_autoclicker_cost = "1,2,3,2";
-
-    // Reset Successor Upgrade variables
-    successoramount = "1";
-    successorlevel = 0;
-    successorupgradecost = "1,2";
-    successorupgradecostaddition = "1,2";
-
-    // Hide conditional elements
-    unlockautomationbtn.style.display = "none";
-    open_automation_btn.style.display = "none";
-
-    // Refresh UI display
-    display();
-}
-
-
 // Local Storage Save / Load Handlers
 function saveGame() {
     let saveData = {
@@ -199,16 +179,21 @@ function saveGame() {
         factor_shift_level: factor_shift_level,
         automation_unlocked: automation_unlocked,
         pathmaxlength: pathmaxlength,
-        // Autoclicker levels and costs
+        // Autoclickers
         successor_autoclicker_level: successor_autoclicker_level,
         maximize_autoclicker_level: maximize_autoclicker_level,
         successor_autoclicker_cost: successor_autoclicker_cost,
         maximize_autoclicker_cost: maximize_autoclicker_cost,
-        // Successor Upgrade variables
+        // Successor Upgrades
         successoramount: successoramount,
         successorlevel: successorlevel,
         successorupgradecost: successorupgradecost,
-        successorupgradecostaddition: successorupgradecostaddition
+        successorupgradecostaddition: successorupgradecostaddition,
+        successorupgradecost2: successorupgradecost2,
+        successorupgradecostaddition2: successorupgradecostaddition2,
+        successorupgradecost3: successorupgradecost3,
+        successorupgradecostaddition3: successorupgradecostaddition3,
+        successorupgradecost4: successorupgradecost4
     };
     localStorage.setItem("y_sequence_incremental_save", JSON.stringify(saveData));
 }
@@ -227,23 +212,67 @@ function loadGame() {
             }
             if (data.pathmaxlength !== undefined) pathmaxlength = data.pathmaxlength;
 
-            // Restore Autoclicker levels and costs
+            // Autoclickers
             if (data.successor_autoclicker_level !== undefined) successor_autoclicker_level = data.successor_autoclicker_level;
             if (data.maximize_autoclicker_level !== undefined) maximize_autoclicker_level = data.maximize_autoclicker_level;
             if (data.successor_autoclicker_cost !== undefined) successor_autoclicker_cost = data.successor_autoclicker_cost;
             if (data.maximize_autoclicker_cost !== undefined) maximize_autoclicker_cost = data.maximize_autoclicker_cost;
 
-            // Restore Successor Upgrade variables
+            // Upgrades
             if (data.successoramount !== undefined) successoramount = data.successoramount;
             if (data.successorlevel !== undefined) successorlevel = data.successorlevel;
             if (data.successorupgradecost !== undefined) successorupgradecost = data.successorupgradecost;
             if (data.successorupgradecostaddition !== undefined) successorupgradecostaddition = data.successorupgradecostaddition;
+            if (data.successorupgradecost2 !== undefined) successorupgradecost2 = data.successorupgradecost2;
+            if (data.successorupgradecostaddition2 !== undefined) successorupgradecostaddition2 = data.successorupgradecostaddition2;
+            if (data.successorupgradecost3 !== undefined) successorupgradecost3 = data.successorupgradecost3;
+            if (data.successorupgradecostaddition3 !== undefined) successorupgradecostaddition3 = data.successorupgradecostaddition3;
+            if (data.successorupgradecost4 !== undefined) successorupgradecost4 = data.successorupgradecost4;
 
-            unlockautomationbtn.style.display = ((factor_shift_level == 7) ? "block" : "none");
+            unlockautomationbtn.style.display = ((factor_shift_level === 7) ? "block" : "none");
         } catch (e) {
             console.error("Failed to parse save data:", e);
         }
     }
+}
+
+function resetGame() {
+    if (!confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
+        return;
+    }
+
+    localStorage.removeItem("y_sequence_incremental_save");
+
+    // Reset base state
+    currentOrdinal = Y_Sequence.ZERO;
+    currentBase = 11;
+    pathmaxlength = 100;
+    factor_shift_level = 0;
+    automation_unlocked = false;
+
+    // Reset autoclickers
+    successor_autoclicker_level = 0;
+    maximize_autoclicker_level = 0;
+    successor_autoclicker_cost = "1,2,3,2";
+    maximize_autoclicker_cost = "1,2,3,2";
+
+    // Reset upgrades
+    successoramount = "1";
+    successorlevel = 0;
+    successorupgradecost = "1,2";
+    successorupgradecostaddition = "1,2";
+    successorupgradecost2 = "1,2,2";
+    successorupgradecostaddition2 = "1,2,1,2";
+    successorupgradecost3 = "1,2,3";
+    successorupgradecostaddition3 = "1,2,2";
+    successorupgradecost4 = "1,2,3,2";
+
+    // UI Reset
+    unlockautomationbtn.style.display = "none";
+    open_automation_btn.style.display = "none";
+
+    showTab('ordinal-tab');
+    display();
 }
 
 
@@ -358,6 +387,15 @@ function display() {
     upgradesuccessorpowerinformation.innerHTML = "Your current successor power is: " + convertedsccuessorpower + " (in ω-Y terms: " + successoramount + ")"
     successorupgradeinformation.innerHTML = "You have upgraded successor for "+successorlevel + " " + timesText2 + ", which equilvalent to the boost of " + (successorlevel+1) + "x"
     successorupgradepurchasebutton.innerHTML = "Upgrade successor power by 1 for: " + formatG(convert_From_wY(successorupgradecost , "2-shifted OCF"), currentBase)
+    successorupgradepurchasebutton2.innerHTML = "Upgrade successor power by 2 for: " + formatG(convert_From_wY(successorupgradecost2 , "2-shifted OCF"), currentBase)
+    successorupgradepurchasebutton3.innerHTML = "Upgrade successor power by &omega; for: " + formatG(convert_From_wY(successorupgradecost3 , "2-shifted OCF"), currentBase)
+    successorupgradepurchasebutton4.innerHTML = "Increase successor power by the lowest sum terms for " + formatG(convert_From_wY(successorupgradecost4 , "2-shifted OCF"), currentBase)
+
+
+    succupgradeinfo.innerHTML = ": " + convert_From_wY(successoramount , "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount+",1" , "2-shifted OCF")
+    succupgradeinfo2.innerHTML = ": " + convert_From_wY(successoramount , "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount+",1,1" , "2-shifted OCF")
+    succupgradeinfo3.innerHTML = ": " + convert_From_wY(successoramount , "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount,"1,2") , "2-shifted OCF")
+    succupgradeinfo4.innerHTML = ": " + convert_From_wY(successoramount , "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount).at(-1)) , "2-shifted OCF")
 }
 
 function buyfactorshift() {
@@ -408,6 +446,39 @@ function purchase_successor_power_upgrade() {
     }
     display();
 }
+
+function purchase_successor_power_upgrade2() {
+    if (Y_Sequence.cmp(successorupgradecost2, currentOrdinal) <= 0) {
+        currentOrdinal = ""
+        successoramount = addY(successoramount,"1,1")
+        successorupgradecost2 = maximizeordinal(addY(successorupgradecost2,successorupgradecostaddition2), currentBase)
+        successorupgradecostaddition2 = maximizeordinal(addY(successorupgradecostaddition2,"1,2,1,2"), currentBase)
+        successorlevel += 2;
+    }
+    display();
+}
+
+function purchase_successor_power_upgrade3() {
+    if (Y_Sequence.cmp(successorupgradecost3, currentOrdinal) <= 0) {
+        currentOrdinal = ""
+        successoramount = addY(successoramount,"1,2")
+        successorupgradecost3 = maximizeordinal(addY(successorupgradecost3,successorupgradecostaddition3), currentBase)
+        successorupgradecostaddition3 = maximizeordinal(addY(successorupgradecostaddition3,"1,2,2"), currentBase)
+        successorlevel += currentBase;
+    }
+    display();
+}
+
+function purchase_successor_power_upgrade4() {
+    if (Y_Sequence.cmp(successorupgradecost4, currentOrdinal) <= 0) {
+        currentOrdinal = ""
+        successoramount = addY(successoramount, extractsumterms(successoramount).at(-1))
+        successorupgradecost4 = maximizeordinal(successorupgradecost4+",2", currentBase)
+        successorlevel += currentBase*2; // approx
+    }
+    display();
+}
+
 
 function maximizesuccessor(){
     successoramount = maximizeordinal(successoramount,currentBase)
