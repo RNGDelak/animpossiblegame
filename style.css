@@ -6,12 +6,6 @@
     align-items: center;
 }
 
-html, body {
-  touch-action: manipulation;
-  /* Optional: disables rubber-band elastic scrolling in mobile Safari */
-  overscroll-behavior: none; 
-}
-
 .tab-navigation button {
     display: inline-block;
     width: auto;
@@ -20,4 +14,31 @@ html, body {
 /* Base style for tab panels */
 .tabs {
     width: 100%;
+}
+
+.html,body {
+    touch-action: none;
+}
+
+.scrollable {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  height: calc(1.2em + 12px); 
+  line-height: 1.2em;
+  box-sizing: border-box;
+
+  scrollbar-gutter: stable;
+}
+
+.scrollable::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }

@@ -10,8 +10,8 @@
 
 <body style="background-image: linear-gradient(#adadad,#ffffff); background-repeat: no-repeat; background-size: auto;">
     <h1>An Impossible Game: where you click g<sub>Lim(ω-Y)</sub>(11) times</h1>
-    <h2>Current number: <span id="current-number">0</span></h2>
-    <h2>Which is equilvalent to: <span id="current-converted">0</span></h2>
+    <h2 class = "scrollable">Current number: <span id="current-number">0</span></h2>
+    <h2 class = "scrollable">Which is equilvalent to: <span id="current-converted">0</span></h2>
 
     <div class="tab-navigation">
         <button id="ordinal-tab-open" onclick="showTab('ordinal-tab')">Ordinal</button>
@@ -41,9 +41,9 @@
     </div>
 
     <div id="upgrade-tab" class="tabs" style="display: none;">
-        <h1 id="upgrade-successor-power-example" style="text-align: center;">g<sub>&omega;-Y(1,2,4)</sub>(11) ↦ g<sub>&omega;-Y(1,2,4,1)</sub>(11)</h1>
-        <h2 id="upgrade-successor-power-example-converted" style="text-align: center;">Which is equilvalent to: g<sub>&omega;-Y(&psi;<sub>0</sub>(&Omega;))</sub>(11) ↦ g<sub>&omega;-Y(&psi;<sub>0</sub>(&Omega;)+1)</sub>(11)</h2>
-        <h3 id="upgrade-successor-power-information" style="text-align: center;">Your current successor power is: 1</h3>
+        <h1 id="upgrade-successor-power-example" style="text-align: center;" class = "scrollable">g<sub>&omega;-Y(1,2,4)</sub>(11) ↦ g<sub>&omega;-Y(1,2,4,1)</sub>(11)</h1>
+        <h2 id="upgrade-successor-power-example-converted" style="text-align: center;" class = "scrollable">Which is equilvalent to: g<sub>&omega;-Y(&psi;<sub>0</sub>(&Omega;))</sub>(11) ↦ g<sub>&omega;-Y(&psi;<sub>0</sub>(&Omega;)+1)</sub>(11)</h2>
+        <h3 id="upgrade-successor-power-information" style="text-align: center;" class = "scrollable">Your current successor power is: 1</h3>
         <br>
         <button id="successor-maximize-button" onclick="maximizesuccessor()">Maximize the successor base for efficiency</button><br>
         <h3 id="successor-upgrade-information">You have upgraded successor for 0 times, which equilvalent to the boost of x1 speed</h3>
