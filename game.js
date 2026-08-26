@@ -23,6 +23,13 @@ let successorupgradecostaddition3 = "1,2,2";
 
 let successorupgradecost4 = "1,2,3,2";
 
+let successorupgrade5unlocked = false;
+let successorupgradecost5 = "1,2,3,2,2";
+
+
+
+
+
 // Tabs
 const ordinal_tab = document.getElementById("ordinal-tab");
 const automation_tab = document.getElementById("automation-tab");
@@ -41,6 +48,7 @@ const successorupgradepurchasebutton = document.getElementById("successor-upgrad
 const successorupgradepurchasebutton2 = document.getElementById("successor-upgrade-purchase-button2");
 const successorupgradepurchasebutton3 = document.getElementById("successor-upgrade-purchase-button3");
 const successorupgradepurchasebutton4 = document.getElementById("successor-upgrade-purchase-button4");
+const successorupgradepurchasebutton5 = document.getElementById("successor-upgrade-purchase-button5");
 
 // Displays
 const numberdisplay = document.getElementById("current-number");
@@ -59,6 +67,7 @@ const succupgradeinfo = document.getElementById("succ-upgrade-info");
 const succupgradeinfo2 = document.getElementById("succ-upgrade-2-info");
 const succupgradeinfo3 = document.getElementById("succ-upgrade-3-info");
 const succupgradeinfo4 = document.getElementById("succ-upgrade-4-info");
+const succupgradeinfo5 = document.getElementById("succ-upgrade-5-info");
 
 const factorshiftcost = [
     "1,2",                // equivalent to 10 clicks
@@ -95,6 +104,10 @@ function addY(a, b) {
     allTerms.sort((x, y) => Y_Sequence.cmp(y, x)); 
 
     return allTerms.join(",");
+}
+
+function mulYtoNumber(a,b){
+    return a.repeat(b);
 }
 
 function f(a, b) {
@@ -235,6 +248,24 @@ function purchase_successor_power_upgrade4() {
     display();
 }
 
+function purchase_successor_power_upgrade5() {
+    if (Y_Sequence.cmp("1,2,3,2,2", currentOrdinal) <= 0 && !successorupgrade5unlocked){
+        successorupgrade5unlocked = true;
+        currentOrdinal = "";
+        return;
+    }
+
+    if (!successorupgrade5unlocked) return;
+
+    if (Y_Sequence.cmp(successorupgradecost5, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        successoramount = addY(successoramount, extractsumterms(successoramount)[0]);
+        successorupgradecost5 = maximizeordinal(successorupgradecost5 + ",2", currentBase);
+        successorlevel += currentBase * 3;
+    }
+    display();
+}
+
 function maximizesuccessor() {
     successoramount = maximizeordinal(successoramount, currentBase);
     display();
@@ -306,11 +337,14 @@ function display() {
     successorupgradepurchasebutton2.innerHTML = "Upgrade successor power by 2 for: " + formatG(convert_From_wY(successorupgradecost2, "2-shifted OCF"), currentBase);
     successorupgradepurchasebutton3.innerHTML = "Upgrade successor power by &omega; for: " + formatG(convert_From_wY(successorupgradecost3, "2-shifted OCF"), currentBase);
     successorupgradepurchasebutton4.innerHTML = "Increase successor power by the lowest sum terms for " + formatG(convert_From_wY(successorupgradecost4, "2-shifted OCF"), currentBase);
+    successorupgradepurchasebutton5.innerHTML = (successorupgrade5unlocked)? ("Increase successor power by the highest sum terms for " + formatG(convert_From_wY(successorupgradecost5, "2-shifted OCF"), currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+2</sup>",10)
+
 
     succupgradeinfo.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount + ",1", "2-shifted OCF");
     succupgradeinfo2.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount + ",1,1", "2-shifted OCF");
     succupgradeinfo3.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, "1,2"), "2-shifted OCF");
     succupgradeinfo4.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount).at(-1)), "2-shifted OCF");
+    succupgradeinfo5.innerHTML = (successorupgrade5unlocked)? (": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount)[0]), "2-shifted OCF")) : ""
 }
 
 
