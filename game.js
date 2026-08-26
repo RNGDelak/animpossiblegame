@@ -404,7 +404,9 @@ function saveGame() {
         successorupgradecostaddition2,
         successorupgradecost3,
         successorupgradecostaddition3,
-        successorupgradecost4
+        successorupgradecost4,
+        successorupgrade5unlocked,
+        successorupgradecost5
     };
     localStorage.setItem("y_sequence_incremental_save", JSON.stringify(saveData));
 }
@@ -434,6 +436,9 @@ function loadGame() {
             if (data.successorupgradecost3 !== undefined) successorupgradecost3 = data.successorupgradecost3;
             if (data.successorupgradecostaddition3 !== undefined) successorupgradecostaddition3 = data.successorupgradecostaddition3;
             if (data.successorupgradecost4 !== undefined) successorupgradecost4 = data.successorupgradecost4;
+            if (data.successorupgrade5unlocked !== undefined) successorupgrade5unlocked = data.successorupgrade5unlocked;
+            if (data.successorupgradecost5 !== undefined) successorupgradecost5 = data.successorupgradecost5;
+
             if (factor_shift_level > 5) factor_shift_level = 5;
             currentBase = 10 - factor_shift_level;
         } catch (e) {
@@ -450,7 +455,7 @@ function resetGame() {
     localStorage.removeItem("y_sequence_incremental_save");
 
     currentOrdinal = Y_Sequence.ZERO;
-    currentBase = 11;
+    currentBase = 10;
     pathmaxlength = 100;
     factor_shift_level = 0;
     automation_unlocked = false;
@@ -470,10 +475,12 @@ function resetGame() {
     successorupgradecostaddition3 = "1,2,2";
     successorupgradecost4 = "1,2,3,2";
 
+    successorupgrade5unlocked = false;
+    successorupgradecost5 = "1,2,3,2,2";
+
     showTab('ordinal-tab');
     display();
 }
-
 
 //////////////////////////// EVENT LISTENERS & LOOPS //////////////////////////////////////////
 
