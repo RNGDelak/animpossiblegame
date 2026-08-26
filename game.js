@@ -399,6 +399,8 @@ function loadGame() {
             if (data.successorupgradecost3 !== undefined) successorupgradecost3 = data.successorupgradecost3;
             if (data.successorupgradecostaddition3 !== undefined) successorupgradecostaddition3 = data.successorupgradecostaddition3;
             if (data.successorupgradecost4 !== undefined) successorupgradecost4 = data.successorupgradecost4;
+            if (factor_shift_level > 5) factor_shift_level = 5;
+            currentBase = 10 - factor_shift_level;
         } catch (e) {
             console.error("Failed to parse save data:", e);
         }
