@@ -26,15 +26,16 @@ let successorupgradecost4 = "1,2,3,2";
 let successorupgrade5unlocked = false;
 let successorupgradecost5 = "1,2,3,2,2";
 
+let successorupgrade6unlocked = false;
+let successorupgradecost6 = "1,2,3,2,2,2";
 
+let successorupgrade7unlocked = false;
+let successorupgradecost7 = "1,2,3,2,2,2,2";
 
-
-
-// Tabs
+// Cache DOM Elements once to prevent repeated queries
 const ordinal_tab = document.getElementById("ordinal-tab");
 const automation_tab = document.getElementById("automation-tab");
 
-// Buttons
 const successorButton = document.getElementById("click-button");
 const maximizeButton = document.getElementById("maximize-button");
 const factorshiftButton = document.getElementById("shift-button");
@@ -49,8 +50,9 @@ const successorupgradepurchasebutton2 = document.getElementById("successor-upgra
 const successorupgradepurchasebutton3 = document.getElementById("successor-upgrade-purchase-button3");
 const successorupgradepurchasebutton4 = document.getElementById("successor-upgrade-purchase-button4");
 const successorupgradepurchasebutton5 = document.getElementById("successor-upgrade-purchase-button5");
+const successorupgradepurchasebutton6 = document.getElementById("successor-upgrade-purchase-button6");
+const successorupgradepurchasebutton7 = document.getElementById("successor-upgrade-purchase-button7");
 
-// Displays
 const numberdisplay = document.getElementById("current-number");
 const notationcoverted = document.getElementById("current-converted");
 const factor_shift_information = document.getElementById("factor-shift-information");
@@ -68,16 +70,17 @@ const succupgradeinfo2 = document.getElementById("succ-upgrade-2-info");
 const succupgradeinfo3 = document.getElementById("succ-upgrade-3-info");
 const succupgradeinfo4 = document.getElementById("succ-upgrade-4-info");
 const succupgradeinfo5 = document.getElementById("succ-upgrade-5-info");
+const succupgradeinfo6 = document.getElementById("succ-upgrade-6-info");
+const succupgradeinfo7 = document.getElementById("succ-upgrade-7-info");
 
 const factorshiftcost = [
-    "1,2",                // equivalent to 10 clicks
-    "1,2,1,2",            // equivalent to 18 clicks
-    "1,2,1,2,1,2",        // equivalent to 24 clicks
-    "1,2,1,2,1,2,1,2",    // equivalent to 28 clicks
-    "1,2,2",              // equilvalent to 36 clicks
-    "Limit"               // equivalent to END GAME
+    "1,2",         // equivalent to 10 clicks
+    "1,2,1,2",     // equivalent to 18 clicks
+    "1,2,1,2,1,2", // equivalent to 24 clicks
+    "1,2,1,2,1,2,1,2", // equivalent to 28 clicks
+    "1,2,2",       // equilvalent to 36 clicks
+    "Limit"        // equivalent to END GAME
 ];
-
 
 //////////////////////////// HELPER FUNCTIONS //////////////////////////////////////////
 
@@ -106,8 +109,21 @@ function addY(a, b) {
     return allTerms.join(",");
 }
 
-function mulYtoNumber(a,b){
-    return a.repeat(b);
+function monictify(ord){
+    if (!Array.isArray(ord)) { ord = extractsumterms(ord); }
+    return ord.filter((item, i) => item !== ord[i - 1]).join(",");
+}
+
+function mulYtoNumber(a, b) {
+    if (!Array.isArray(a)) {
+        a = extractsumterms(a);
+    }
+    return a.flatMap(x => Array(b).fill(x)).join(',');
+}
+
+function increaseexpofmonicYordinal(ord, amount) {
+    if (Y_Sequence.cmp(ord, Y_Sequence.ZERO) === 0) return "";
+    return extractsumterms(ord).map(x => (x + ",2".repeat(amount))).join(',');
 }
 
 function f(a, b) {
@@ -156,17 +172,23 @@ function isEmptyOrdinal(ord) {
     return !ord || ord.length === 0;
 }
 
+// Helper to update text/HTML without destroying DOM selection state
+function updateElement(el, html) {
+    if (el && el.innerHTML !== html) {
+        el.innerHTML = html;
+    }
+}
 
 //////////////////////////// GAME ACTIONS //////////////////////////////////////////
 
-function applySuccessor() {
+function applySuccessor(render = true) {
     currentOrdinal = successorordinal(currentOrdinal);
-    display();
+    if (render) display();
 }
 
-function applyMaximize() {
+function applyMaximize(render = true) {
     currentOrdinal = maximizeordinal(currentOrdinal, currentBase);
-    display();
+    if (render) display();
 }
 
 function buyfactorshift() {
@@ -252,6 +274,7 @@ function purchase_successor_power_upgrade5() {
     if (Y_Sequence.cmp("1,2,3,2,2", currentOrdinal) <= 0 && !successorupgrade5unlocked){
         successorupgrade5unlocked = true;
         currentOrdinal = "";
+        display();
         return;
     }
 
@@ -266,13 +289,50 @@ function purchase_successor_power_upgrade5() {
     display();
 }
 
+function purchase_successor_power_upgrade6() {
+    if (Y_Sequence.cmp("1,2,3,2,2,2", currentOrdinal) <= 0 && !successorupgrade6unlocked){
+        successorupgrade6unlocked = true;
+        currentOrdinal = "";
+        display();
+        return;
+    }
+
+    if (!successorupgrade6unlocked) return;
+
+    if (Y_Sequence.cmp(successorupgradecost6, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        successoramount = addY(successoramount, monictify(successoramount));
+        successorupgradecost6 = maximizeordinal(successorupgradecost6 + ",2", currentBase);
+        successorlevel += currentBase**2;
+    }
+    display();
+}
+
+function purchase_successor_power_upgrade7() {
+    if (Y_Sequence.cmp("1,2,3,2,2,2,2", currentOrdinal) <= 0 && !successorupgrade7unlocked){
+        successorupgrade7unlocked = true;
+        currentOrdinal = "";
+        display();
+        return;
+    }
+
+    if (!successorupgrade7unlocked) return;
+
+    if (Y_Sequence.cmp(successorupgradecost7, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        successoramount = addY(successoramount, mulYtoNumber(monictify(successoramount), 2));
+        successorupgradecost7 = maximizeordinal(successorupgradecost7 + ",2", currentBase);
+        successorlevel += (currentBase**2) * 2;
+    }
+    display();
+}
+
 function maximizesuccessor() {
     successoramount = maximizeordinal(successoramount, currentBase);
     display();
 }
 
-
-//////////////////////////// PURE DISPLAY FUNCTION //////////////////////////////////////////
+//////////////////////////// DISPLAY FUNCTION //////////////////////////////////////////
 
 function display() {
     const isOrdEmpty = isEmptyOrdinal(currentOrdinal);
@@ -284,38 +344,33 @@ function display() {
     // 2. Core Displays
     const convertedCurrent = convert_From_wY(currentOrdinal, "2-shifted OCF");
 
-    numberdisplay.innerHTML = isOrdEmpty
-        ? "0"
-        : formatG(`&omega;-Y(${currentOrdinal})`, currentBase);
-
-    notationcoverted.innerHTML = isOrdEmpty
-        ? "0"
-        : formatG(convertedCurrent, currentBase);
+    updateElement(numberdisplay, isOrdEmpty ? "0" : formatG(`&omega;-Y(${currentOrdinal})`, currentBase));
+    updateElement(notationcoverted, isOrdEmpty ? "0" : formatG(convertedCurrent, currentBase));
 
     // 3. Factor Shift Info
     const cost = factorshiftcost[factor_shift_level];
     const convertedCost = convert_From_wY(cost, "2-shifted OCF");
 
-    factorshiftButton.innerHTML = `Reach ${formatG(convertedCost, currentBase)} to perform a factor shift`;
+    updateElement(factorshiftButton, `Reach ${formatG(convertedCost, currentBase)} to perform a factor shift`);
 
     const timesText = factor_shift_level === 1 ? "time" : "times";
     const timesText2 = successorlevel === 1 ? "time" : "times";
-    factor_shift_information.innerHTML = `You have factor shift for ${factor_shift_level} ${timesText}, and the current base is ${currentBase}`;
+    updateElement(factor_shift_information, `You have factor shift for ${factor_shift_level} ${timesText}, and the current base is ${currentBase}`);
 
     // 4. Automation Tab
-    unlockautomationbtn.innerHTML = automation_unlocked
+    updateElement(unlockautomationbtn, automation_unlocked
         ? "Unlocked Automation!"
-        : `Reach ${formatG("&omega;<sup>&omega;+1</sup>", currentBase)} to unlock automation tab!`;
+        : `Reach ${formatG("&omega;<sup>&omega;+1</sup>", currentBase)} to unlock automation tab!`);
 
     const succTimes = successor_autoclicker_level === 1 ? "time" : "times";
     const succCost = convert_From_wY(successor_autoclicker_cost, "2-shifted OCF");
-    successorAutoclickerInfo.innerHTML = `You have ${successor_autoclicker_level} successor autoclicker, which is clicking the successor button ${successor_autoclicker_level} ${succTimes} per second`;
-    buySuccessorAutoclickerBtn.innerHTML = `Buy Successor Autoclicker for ${formatG(succCost, currentBase)}`;
+    updateElement(successorAutoclickerInfo, `You have ${successor_autoclicker_level} successor autoclicker, which is clicking the successor button ${successor_autoclicker_level} ${succTimes} per second`);
+    updateElement(buySuccessorAutoclickerBtn, `Buy Successor Autoclicker for ${formatG(succCost, currentBase)}`);
 
     const maxTimes = maximize_autoclicker_level === 1 ? "time" : "times";
     const maxCost = convert_From_wY(maximize_autoclicker_cost, "2-shifted OCF");
-    maximizeAutoclickerInfo.innerHTML = `You have ${maximize_autoclicker_level} maximize autoclicker, which is clicking the maximize button ${maximize_autoclicker_level} ${maxTimes} per second`;
-    buyMaximizeAutoclickerBtn.innerHTML = `Buy Maximize Autoclicker for ${formatG(maxCost, currentBase)}`;
+    updateElement(maximizeAutoclickerInfo, `You have ${maximize_autoclicker_level} maximize autoclicker, which is clicking the maximize button ${maximize_autoclicker_level} ${maxTimes} per second`);
+    updateElement(buyMaximizeAutoclickerBtn, `Buy Maximize Autoclicker for ${formatG(maxCost, currentBase)}`);
 
     // 5. Upgrades & Power
     const addedvalue = addY(currentOrdinal, successoramount);
@@ -328,25 +383,27 @@ function display() {
     const endRaw = formatG(`&omega;-Y(${addedvalue})`, currentBase);
     const endConverted = formatG(convertedvalue, currentBase);
 
-    upgradesuccessorpowerexample.innerHTML = `${startRaw} ↦ ${endRaw}`;
-    upgradesuccessorpowerexampleconverted.innerHTML = `Which is equivalent to: ${startConverted} ↦ ${endConverted}`;
-    upgradesuccessorpowerinformation.innerHTML = "Your current successor power is: " + convertedsccuessorpower + " (in ω-Y terms: " + successoramount + ")";
-    successorupgradeinformation.innerHTML = "You have upgraded successor for " + successorlevel + " " + timesText2 + ", which equilvalent to the boost of " + (successorlevel + 1) + "x";
+    updateElement(upgradesuccessorpowerexample, `${startRaw} ↦ ${endRaw}`);
+    updateElement(upgradesuccessorpowerexampleconverted, `Which is equivalent to: ${startConverted} ↦ ${endConverted}`);
+    updateElement(upgradesuccessorpowerinformation, "Your current successor power is: " + convertedsccuessorpower + " (in ω-Y terms: " + successoramount + ")");
+    updateElement(successorupgradeinformation, "You have upgraded successor for " + successorlevel + " " + timesText2 + ", which equilvalent to the boost of " + (successorlevel + 1) + "x");
     
-    successorupgradepurchasebutton.innerHTML = "Upgrade successor power by 1 for: " + formatG(convert_From_wY(successorupgradecost, "2-shifted OCF"), currentBase);
-    successorupgradepurchasebutton2.innerHTML = "Upgrade successor power by 2 for: " + formatG(convert_From_wY(successorupgradecost2, "2-shifted OCF"), currentBase);
-    successorupgradepurchasebutton3.innerHTML = "Upgrade successor power by &omega; for: " + formatG(convert_From_wY(successorupgradecost3, "2-shifted OCF"), currentBase);
-    successorupgradepurchasebutton4.innerHTML = "Increase successor power by the lowest sum terms for " + formatG(convert_From_wY(successorupgradecost4, "2-shifted OCF"), currentBase);
-    successorupgradepurchasebutton5.innerHTML = (successorupgrade5unlocked)? ("Increase successor power by the highest sum terms for " + formatG(convert_From_wY(successorupgradecost5, "2-shifted OCF"), currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+2</sup>",10)
+    updateElement(successorupgradepurchasebutton, "Upgrade successor power by 1 for: " + formatG(convert_From_wY(successorupgradecost, "2-shifted OCF"), currentBase));
+    updateElement(successorupgradepurchasebutton2, "Upgrade successor power by 2 for: " + formatG(convert_From_wY(successorupgradecost2, "2-shifted OCF"), currentBase));
+    updateElement(successorupgradepurchasebutton3, "Upgrade successor power by &omega; for: " + formatG(convert_From_wY(successorupgradecost3, "2-shifted OCF"), currentBase));
+    updateElement(successorupgradepurchasebutton4, "Increase successor power by the lowest sum terms for " + formatG(convert_From_wY(successorupgradecost4, "2-shifted OCF"), currentBase));
+    updateElement(successorupgradepurchasebutton5, (successorupgrade5unlocked) ? ("Increase successor power by the highest sum terms for " + formatG(convert_From_wY(successorupgradecost5, "2-shifted OCF"), currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+2</sup>", currentBase));
+    updateElement(successorupgradepurchasebutton6, (successorupgrade6unlocked) ? ("Increase successor power by all the monic sum terms " + formatG(convert_From_wY(successorupgradecost6, "2-shifted OCF"), currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+3</sup>", currentBase));
+    updateElement(successorupgradepurchasebutton7, (successorupgrade7unlocked) ? ("Increase successor power by all the monic sum terms doubled " + formatG(convert_From_wY(successorupgradecost7, "2-shifted OCF"), currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+4</sup>", currentBase));
 
-
-    succupgradeinfo.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount + ",1", "2-shifted OCF");
-    succupgradeinfo2.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount + ",1,1", "2-shifted OCF");
-    succupgradeinfo3.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, "1,2"), "2-shifted OCF");
-    succupgradeinfo4.innerHTML = ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount).at(-1)), "2-shifted OCF");
-    succupgradeinfo5.innerHTML = (successorupgrade5unlocked)? (": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount)[0]), "2-shifted OCF")) : ""
+    updateElement(succupgradeinfo, ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount + ",1", "2-shifted OCF"));
+    updateElement(succupgradeinfo2, ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(successoramount + ",1,1", "2-shifted OCF"));
+    updateElement(succupgradeinfo3, ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, "1,2"), "2-shifted OCF"));
+    updateElement(succupgradeinfo4, ": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount).at(-1)), "2-shifted OCF"));
+    updateElement(succupgradeinfo5, (successorupgrade5unlocked) ? (": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, extractsumterms(successoramount)[0]), "2-shifted OCF")) : "");
+    updateElement(succupgradeinfo6, (successorupgrade6unlocked) ? (": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, monictify(successoramount)), "2-shifted OCF")) : "");
+    updateElement(succupgradeinfo7, (successorupgrade7unlocked) ? (": " + convert_From_wY(successoramount, "2-shifted OCF") + " ↦ " + convert_From_wY(addY(successoramount, mulYtoNumber(monictify(successoramount), 2)), "2-shifted OCF")) : "");
 }
-
 
 //////////////////////////// SAVE / LOAD / EXPORT //////////////////////////////////////////
 
@@ -406,7 +463,11 @@ function saveGame() {
         successorupgradecostaddition3,
         successorupgradecost4,
         successorupgrade5unlocked,
-        successorupgradecost5
+        successorupgradecost5,
+        successorupgrade6unlocked,
+        successorupgradecost6,
+        successorupgrade7unlocked,
+        successorupgradecost7
     };
     localStorage.setItem("y_sequence_incremental_save", JSON.stringify(saveData));
 }
@@ -438,6 +499,10 @@ function loadGame() {
             if (data.successorupgradecost4 !== undefined) successorupgradecost4 = data.successorupgradecost4;
             if (data.successorupgrade5unlocked !== undefined) successorupgrade5unlocked = data.successorupgrade5unlocked;
             if (data.successorupgradecost5 !== undefined) successorupgradecost5 = data.successorupgradecost5;
+            if (data.successorupgrade6unlocked !== undefined) successorupgrade6unlocked = data.successorupgrade6unlocked;
+            if (data.successorupgradecost6 !== undefined) successorupgradecost6 = data.successorupgradecost6;
+            if (data.successorupgrade7unlocked !== undefined) successorupgrade7unlocked = data.successorupgrade7unlocked;
+            if (data.successorupgradecost7 !== undefined) successorupgradecost7 = data.successorupgradecost7;
 
             if (factor_shift_level > 5) factor_shift_level = 5;
             currentBase = 10 - factor_shift_level;
@@ -478,6 +543,12 @@ function resetGame() {
     successorupgrade5unlocked = false;
     successorupgradecost5 = "1,2,3,2,2";
 
+    successorupgrade6unlocked = false;
+    successorupgradecost6 = "1,2,3,2,2,2";
+
+    successorupgrade7unlocked = false;
+    successorupgradecost7 = "1,2,3,2,2,2,2";
+
     showTab('ordinal-tab');
     display();
 }
@@ -485,20 +556,30 @@ function resetGame() {
 //////////////////////////// EVENT LISTENERS & LOOPS //////////////////////////////////////////
 
 // Button Controls
-successorButton.onclick = applySuccessor;
-maximizeButton.onclick = applyMaximize;
+successorButton.onclick = () => applySuccessor(true);
+maximizeButton.onclick = () => applyMaximize(true);
 factorshiftButton.onclick = buyfactorshift;
+unlockautomationbtn.onclick = unlockautomation;
+buySuccessorAutoclickerBtn.onclick = purchase_successor_autoclicker;
+buyMaximizeAutoclickerBtn.onclick = purchase_maximize_autoclicker;
 
-// Keyboard Controls ('s' for Successor, 'm' for Maximize)
+successorupgradepurchasebutton.onclick = purchase_successor_power_upgrade;
+successorupgradepurchasebutton2.onclick = purchase_successor_power_upgrade2;
+successorupgradepurchasebutton3.onclick = purchase_successor_power_upgrade3;
+successorupgradepurchasebutton4.onclick = purchase_successor_power_upgrade4;
+successorupgradepurchasebutton5.onclick = purchase_successor_power_upgrade5;
+successorupgradepurchasebutton6.onclick = purchase_successor_power_upgrade6;
+successorupgradepurchasebutton7.onclick = purchase_successor_power_upgrade7;
+
+// Keyboard Controls
 document.addEventListener("keydown", (event) => {
-    // Ignore input if typing inside an editable field
     if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
 
     const key = event.key.toLowerCase();
     if (key === 's') {
-        applySuccessor();
+        applySuccessor(true);
     } else if (key === 'm') {
-        applyMaximize();
+        applyMaximize(true);
     }
 });
 
@@ -530,20 +611,27 @@ let lastMaximizeTick = Date.now();
 
 setInterval(() => {
     const now = Date.now();
+    let stateChanged = false;
 
     if (successor_autoclicker_level > 0) {
         const successorInterval = 1000 / successor_autoclicker_level;
         if (now - lastSuccessorTick >= successorInterval) {
-            applySuccessor();
+            applySuccessor(false);
             lastSuccessorTick = now;
+            stateChanged = true;
         }
     }
 
     if (maximize_autoclicker_level > 0) {
         const maximizeInterval = 1000 / maximize_autoclicker_level;
         if (now - lastMaximizeTick >= maximizeInterval) {
-            applyMaximize();
+            applyMaximize(false);
             lastMaximizeTick = now;
+            stateChanged = true;
         }
     }
-}, 16);
+
+    if (stateChanged) {
+        display();
+    }
+}, 50);
