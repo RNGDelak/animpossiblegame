@@ -65,6 +65,7 @@ const factorshiftcost = [
     "1,2,1,2",            // equivalent to 18 clicks
     "1,2,1,2,1,2",        // equivalent to 24 clicks
     "1,2,1,2,1,2,1,2",    // equivalent to 28 clicks
+    "1,2,2"               // equilvalent to 36 clicks
     "Limit"               // equivalent to END GAME
 ];
 
