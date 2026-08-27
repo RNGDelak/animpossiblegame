@@ -22,33 +22,36 @@ button {
     width: 100%;
 }
 
+/* Flexible horizontal scroll container for long ordinal math strings */
 .scrollable {
     display: block;
     width: 100%;
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
-
-    /* Allows content to expand with iOS text scaling without clipping */
-    height: auto;
-    min-height: max-content;
-    
-    /* Overlay scrollbar behaviors for WebKit/iOS */
-    -webkit-overflow-scrolling: touch;
-    
-    /* Reserves track height continuously so layout never shifts */
-    padding-bottom: 6px;
     box-sizing: border-box;
+
+    /* Reserve permanent vertical space for the scrollbar track */
+    scrollbar-gutter: stable;
+    
+    /* Zero out heading margins that cause layout collapse jitter */
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    
+    /* Give subscript elements room so line-height doesn't expand layout dynamically */
+    line-height: 1.6;
+    padding-bottom: 4px;
+
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Custom overlay scrollbar trick for WebKit (iOS / Safari / Chrome) */
+/* Force webkit scrollbar height to remain fixed when activated */
 .scrollable::-webkit-scrollbar {
-    height: 4px;
+    height: 6px;
 }
 
 .scrollable::-webkit-scrollbar-track {
-    /* Transparent track prevents layout engine from pushing sibling elements */
-    background: transparent; 
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .scrollable::-webkit-scrollbar-thumb {
