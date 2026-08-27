@@ -618,3 +618,29 @@ setInterval(() => {
         updateDynamicUI();
     }
 }, 1);
+
+//////////////////////////// FPS COUNTER //////////////////////////////////////////
+
+const fpsDisplay = document.getElementById("fps-display");
+
+let frameCount = 0;
+let lastFpsTime = performance.now();
+
+function updateFPSCounter(now) {
+    frameCount++;
+
+    // Calculate and render FPS every 500ms for stability
+    if (now - lastFpsTime >= 500) {
+        const fps = Math.round((frameCount * 1000) / (now - lastFpsTime));
+        if (fpsDisplay) {
+            fpsDisplay.textContent = fps+"fps";
+        }
+        frameCount = 0;
+        lastFpsTime = now;
+    }
+
+    requestAnimationFrame(updateFPSCounter);
+}
+
+// Start the FPS loop
+requestAnimationFrame(updateFPSCounter);
