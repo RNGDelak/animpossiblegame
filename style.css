@@ -22,38 +22,38 @@ button {
     width: 100%;
 }
 
-/* Flexible horizontal scroll container for long ordinal math strings */
+/* Container: Fixed layout bounds prevent any height changes when text changes */
 .scrollable {
     display: block;
     width: 100%;
     white-space: nowrap;
-    overflow-x: auto;
+    
+    /* ALWAYS force scrollbar track to stay open so height never changes */
+    overflow-x: scroll; 
     overflow-y: hidden;
+    
+    /* Completely lock the height space */
+    min-height: 2.8em;
+    line-height: 1.8;
     box-sizing: border-box;
-
-    /* Reserve permanent vertical space for the scrollbar track */
-    scrollbar-gutter: stable;
-    
-    /* Zero out heading margins that cause layout collapse jitter */
-    margin-top: 0.2em;
-    margin-bottom: 0.2em;
-    
-    /* Give subscript elements room so line-height doesn't expand layout dynamically */
-    line-height: 1.6;
     padding-bottom: 4px;
+    margin: 0;
 
+    /* Stop browser text-size adjustments from altering line-height */
+    -webkit-text-size-adjust: 100%;
     -webkit-overflow-scrolling: touch;
+    
+    /* Prevent layout mutations from bubbling out to lower DOM nodes */
+    contain: layout size;
 }
 
-/* Force webkit scrollbar height to remain fixed when activated */
+/* Scrollbar Track: Forces static footprint */
 .scrollable::-webkit-scrollbar {
-    height: 6px;
+    height: 4px;
+    background-color: rgba(0, 0, 0, 0.05); /* Keeps track visible so it never collapses */
 }
 
-.scrollable::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-}
-
+/* Scrollbar Thumb */
 .scrollable::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
