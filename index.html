@@ -11,12 +11,17 @@
 <body style="background-image: linear-gradient(#adadad,#ffffff); background-repeat: no-repeat; background-size: auto;">
     <h1>An Impossible Game: where you click g<sub>Lim(ω-Y)</sub>(10) times</h1>
     
-    <div class="scrollable">
-        <h2 style="margin: 0;">Current number: <span id="current-number">0</span></h2>
+    <!-- Wrapped to isolate scrollbar calculation from changing math text sizes -->
+    <div class="scrollable-wrapper">
+        <div class="scrollable">
+            <h2 style="margin: 0;">Current number: <span id="current-number">0</span></h2>
+        </div>
     </div>
     
-    <div class="scrollable">
-        <h2 style="margin: 0;">Which is equilvalent to: <span id="current-converted">0</span></h2>
+    <div class="scrollable-wrapper">
+        <div class="scrollable">
+            <h2 style="margin: 0;">Which is equilvalent to: <span id="current-converted">0</span></h2>
+        </div>
     </div>
 
     <h3 style="font-size: small; color: #000000;">FPS: <span id="fps-display">0</span></h3>
@@ -51,16 +56,22 @@
     </div>
 
     <div id="upgrade-tab" class="tabs" style="display: none;">
-        <div class="scrollable">
-            <h1 id="upgrade-successor-power-example" style="text-align: center; margin: 0;">g<sub>ω-Y(1,2,4)</sub>(10) ↦ g<sub>ω-Y(1,2,4,1)</sub>(10)</h1>
+        <div class="scrollable-wrapper">
+            <div class="scrollable">
+                <h1 id="upgrade-successor-power-example" style="text-align: center; margin: 0;">g<sub>ω-Y(1,2,4)</sub>(10) ↦ g<sub>ω-Y(1,2,4,1)</sub>(10)</h1>
+            </div>
         </div>
         
-        <div class="scrollable">
-            <h2 id="upgrade-successor-power-example-converted" style="text-align: center; margin: 0;">Which is equilvalent to: g<sub>ω-Y(&psi;<sub>0</sub>(ω))</sub>(10) ↦ g<sub>ω-Y(&psi;<sub>0</sub>(ω)+1)</sub>(10)</h2>
+        <div class="scrollable-wrapper">
+            <div class="scrollable">
+                <h2 id="upgrade-successor-power-example-converted" style="text-align: center; margin: 0;">Which is equilvalent to: g<sub>ω-Y(&psi;<sub>0</sub>(ω))</sub>(10) ↦ g<sub>ω-Y(&psi;<sub>0</sub>(ω)+1)</sub>(10)</h2>
+            </div>
         </div>
 
-        <div class="scrollable">
-            <h3 id="upgrade-successor-power-information" style="text-align: center; margin: 0;">Your current successor power is: 1</h3>
+        <div class="scrollable-wrapper">
+            <div class="scrollable">
+                <h3 id="upgrade-successor-power-information" style="text-align: center; margin: 0;">Your current successor power is: 1</h3>
+            </div>
         </div>
         <br>
         <button id="successor-maximize-button" onclick="maximizesuccessor()">Maximize the successor base for efficiency</button><br>
