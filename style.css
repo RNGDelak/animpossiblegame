@@ -22,42 +22,40 @@ button {
     width: 100%;
 }
 
-/* Flexible horizontal scroll container */
+/* Container box with strictly locked height limits */
 .scrollable {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: block;
     width: 100%;
-    
-    /* Auto layout dimensions allow text and subscript tags to render completely */
-    height: auto;
-    min-height: 2.5em;
-    
-    /* Horizontal scrolling controls */
+    white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
-    white-space: nowrap;
     box-sizing: border-box;
 
-    /* Extra bottom room for subscripts and scrollbars */
+    /* Reserve exact space for text + sub tags + custom 4px scrollbar track */
+    /* Pre-calculated height calculation: ~1.2em font + 0.6em subscript + 4px scrollbar buffer */
+    height: calc(1.8em + 12px); 
+    line-height: 1.8em;
     padding-bottom: 6px;
     margin: 0;
-    
-    /* Prevents layout shifts on modern browsers without extra background colors */
+
+    /* Ensures iOS and modern browsers hold track space statically */
     scrollbar-gutter: stable;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Ensure children elements inside .scrollable center cleanly without margin collapse */
+/* Force child headings/text to align strictly to the top of the box */
 .scrollable > * {
-    margin: 0;
-    line-height: normal;
     display: inline-block;
+    margin: 0;
+    height: 1.8em;
+    line-height: 1.8em;
+    vertical-align: top;
 }
 
-/* Scrollbar styling - Track background set to transparent to remove the grey line */
+/* Transparent Scrollbar Track (No grey lines, fixed 4px footprint) */
 .scrollable::-webkit-scrollbar {
     height: 4px;
+    background: transparent;
 }
 
 .scrollable::-webkit-scrollbar-track {
