@@ -1,61 +1,68 @@
-/* Flexible wrapper that bounds overflow without clipping tall typography */
+/* Force wrapper to act as an explicit inline flex container with a fixed padding frame */
 .scrollable-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-gutter: stable;
-    -webkit-overflow-scrolling: touch;
-    
-    /* Allow wrapper to automatically match content height */
-    height: max-content;
+width: 100%;
+box-sizing: border-box;
+overflow-x: scroll;
+overflow-y: hidden;
+
+/* Forces hardware acceleration layer to lock scrollbar position */
+will-change: scroll-position;
+
+/* Ensure layout does not shift vertically */
+padding-top: 10px;
+padding-bottom: 10px;
 }
 
-/* Inner scrollable area */
 .scrollable {
-    display: inline-block;
-    min-width: 100%;
-    white-space: nowrap;
-    box-sizing: border-box;
-    padding-bottom: 4px; /* Space above scrollbar */
+display: inline-flex !important;
+align-items: center !important;
+min-width: 100%;
+white-space: nowrap;
+box-sizing: border-box;
 }
 
-/* Let headers scale naturally so superscripts don't get cut off */
 .scrollable h1,
 .scrollable h2,
 .scrollable h3 {
-    margin: 0 !important;
-    padding: 2px 0 !important;
-    line-height: normal !important; /* Prevents tall exponent clipping */
+margin: 0 !important;
+padding: 0 !important;
+line-height: 1 !important;
+display: inline-block !important;
 }
 
-/* Scrollbar styles */
+/* Fixed size scrollbar track prevents thumb jump during content replacements */
 .scrollable-wrapper::-webkit-scrollbar {
-    height: 4px;
+height: 4px !important;
+background: transparent;
 }
 
 .scrollable-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+background: rgba(0, 0, 0, 0.4) !important;
+border-radius: 4px !important;
+}
+
+.scrollable-wrapper::-webkit-scrollbar-track {
+background: rgba(0, 0, 0, 0) !important;
 }
 
 /* Button & navigation styles from original setup */
 button {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
+touch-action: manipulation;
+-webkit-tap-highlight-color: transparent;
 }
 
 .tab-navigation {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
+display: flex;
+flex-direction: row;
+gap: 10px;
+align-items: center;
 }
 
 .tab-navigation button {
-    display: inline-block;
-    width: auto;
+display: inline-block;
+width: auto;
 }
 
 .tabs {
-    width: 100%;
+width: 100%;
 }
