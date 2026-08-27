@@ -22,38 +22,48 @@ button {
     width: 100%;
 }
 
-/* Container: Fixed layout bounds prevent any height changes when text changes */
+/* Flexible horizontal scroll container */
 .scrollable {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     width: 100%;
-    white-space: nowrap;
     
-    /* ALWAYS force scrollbar track to stay open so height never changes */
-    overflow-x: scroll; 
+    /* Auto layout dimensions allow text and subscript tags to render completely */
+    height: auto;
+    min-height: 2.5em;
+    
+    /* Horizontal scrolling controls */
+    overflow-x: auto;
     overflow-y: hidden;
-    
-    /* Completely lock the height space */
-    min-height: 2.8em;
-    line-height: 1.8;
+    white-space: nowrap;
     box-sizing: border-box;
-    padding-bottom: 4px;
-    margin: 0;
 
-    /* Stop browser text-size adjustments from altering line-height */
-    -webkit-text-size-adjust: 100%;
-    -webkit-overflow-scrolling: touch;
+    /* Extra bottom room for subscripts and scrollbars */
+    padding-bottom: 6px;
+    margin: 0;
     
-    /* Prevent layout mutations from bubbling out to lower DOM nodes */
-    contain: layout size;
+    /* Prevents layout shifts on modern browsers without extra background colors */
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Scrollbar Track: Forces static footprint */
+/* Ensure children elements inside .scrollable center cleanly without margin collapse */
+.scrollable > * {
+    margin: 0;
+    line-height: normal;
+    display: inline-block;
+}
+
+/* Scrollbar styling - Track background set to transparent to remove the grey line */
 .scrollable::-webkit-scrollbar {
     height: 4px;
-    background-color: rgba(0, 0, 0, 0.05); /* Keeps track visible so it never collapses */
 }
 
-/* Scrollbar Thumb */
+.scrollable::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .scrollable::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
