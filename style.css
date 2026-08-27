@@ -50,3 +50,30 @@ button {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
 }
+
+/* Fix header font inheritance and scaling */
+h1, h2, h3 {
+    margin: 8px 0;
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+/* Fix gigantic g_sub texts and prevent sub tags from breaking line height */
+span.scrollable, .scrollable {
+    font-size: 0.95rem;
+    font-weight: normal;
+}
+
+sub {
+    font-size: 0.75em;
+    line-height: 0;
+    vertical-align: baseline;
+    position: relative;
+    bottom: -0.25em;
+}
+
+/* Keep buttons compact */
+button {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
