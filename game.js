@@ -617,4 +617,4 @@ setInterval(() => {
     if (stateChanged) {
         updateDynamicUI();
     }
-}, 50);
+}, 1);
