@@ -30,23 +30,36 @@ button {
     overflow-x: auto;
     overflow-y: hidden;
     
-    /* Remove the static height calculation so <sub> and large fonts don't clip */
     height: auto;
     min-height: 1.5em;
     line-height: normal;
     padding-bottom: 6px;
     box-sizing: border-box;
     
+    /* Pre-calculated space reservation prevents layout jumps */
+    contain: layout style;
+    
     /* iOS smooth scrolling */
     -webkit-overflow-scrolling: touch;
     scrollbar-gutter: stable;
 }
 
+/* Explicit scrollbar track height prevents vertical displacement */
 .scrollable::-webkit-scrollbar {
     height: 4px;
 }
 
+.scrollable::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0 4px; /* Fixed lateral offset for stability */
+}
+
+/* Pre-calculated thumb styling with static margins */
 .scrollable::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
+    
+    /* Locks vertical footprint to avoid jitter during dynamic content shifts */
+    margin-top: 0;
+    margin-bottom: 0;
 }
