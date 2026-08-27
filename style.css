@@ -1,52 +1,60 @@
-/* Fix double-tap zoom across mobile browsers */
-button {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
+/* Container isolates overflow and locks total height to prevent scrollbar jitter */
+.scrollable-wrapper {
+    width: 100%;
+    height: 1.8em;               /* Hard-locks height so superscripts/subscripts can't shift layout */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Keeps navigation buttons inline on the same row */
+/* Inner content resets extra inline margins and forces tight line height */
+.scrollable {
+    display: inline-block;
+    min-width: 100%;
+    white-space: nowrap;
+    line-height: 1.1;            /* Tight line spacing for math content */
+    box-sizing: border-box;
+    padding-bottom: 2px;         /* Tight padding just above the scrollbar */
+}
+
+/* Ensure headings inside scrollable areas do not add default browser margins */
+.scrollable h1,
+.scrollable h2,
+.scrollable h3 {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.1 !important;
+}
+
+/* Scrollbar styles */
+.scrollable-wrapper::-webkit-scrollbar {
+    height: 3px;                 /* Slimmer bar for minimal visual impact */
+}
+
+.scrollable-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+/* Button & navigation styles from original setup */
+button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
 .tab-navigation {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
 }
 
 .tab-navigation button {
-    display: inline-block;
-    width: auto;
+    display: inline-block;
+    width: auto;
 }
 
-/* Base style for tab panels */
 .tabs {
-    width: 100%;
-}
-
-/* Flexible horizontal scroll container for long ordinal math strings */
-.scrollable {
-    display: block;
-    width: 100%;
-    white-space: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    
-    /* Remove the static height calculation so <sub> and large fonts don't clip */
-    height: auto;
-    min-height: 1.5em;
-    line-height: normal;
-    padding-bottom: 6px;
-    box-sizing: border-box;
-    
-    /* iOS smooth scrolling */
-    -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
-}
-
-.scrollable::-webkit-scrollbar {
-    height: 4px;
-}
-
-.scrollable::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+    width: 100%;
 }
