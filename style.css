@@ -1,3 +1,9 @@
+/* Fix double-tap zoom across mobile browsers */
+button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
 /* Keeps navigation buttons inline on the same row */
 .tab-navigation {
     display: flex;
@@ -16,25 +22,31 @@
     width: 100%;
 }
 
+/* Flexible horizontal scroll container for long ordinal math strings */
 .scrollable {
-  display: block;
-  width: 100%;
-  white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  height: calc(1.2em + 12px); 
-  line-height: 1.2em;
-  box-sizing: border-box;
-
-  scrollbar-gutter: stable;
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    
+    /* Remove the static height calculation so <sub> and large fonts don't clip */
+    height: auto;
+    min-height: 1.5em;
+    line-height: normal;
+    padding-bottom: 6px;
+    box-sizing: border-box;
+    
+    /* iOS smooth scrolling */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
 }
 
 .scrollable::-webkit-scrollbar {
-  height: 4px;
+    height: 4px;
 }
 
 .scrollable::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
 }
