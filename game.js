@@ -54,8 +54,10 @@ let additionupgradecost10 = "1,2,3,3"; // w^w^2
 // Cache DOM Elements
 const numberdisplay = document.getElementById("current-number");
 const notationcoverted = document.getElementById("current-converted");
+const fpsdisplay = document.getElementById("fps-display");
 const factor_shift_information = document.getElementById("factor-shift-information");
 
+const additionButton = document.getElementById("addition-button");
 const unlockautomationbtn = document.getElementById("automation-unlock-button");
 const open_automation_btn = document.getElementById("automation-tab-open");
 const factorshiftButton = document.getElementById("shift-button");
@@ -109,6 +111,18 @@ const factorshiftcost = [
     "1,2,2",
     "Limit"
 ];
+
+//////////////////////////// TAB NAVIGATION //////////////////////////////////////////
+
+function showTab(tabId) {
+    const tabs = document.querySelectorAll('.tabs');
+    tabs.forEach(tab => tab.style.display = 'none');
+
+    const activeTab = document.getElementById(tabId);
+    if (activeTab) {
+        activeTab.style.display = 'block';
+    }
+}
 
 //////////////////////////// HELPER FUNCTIONS //////////////////////////////////////////
 
@@ -252,6 +266,11 @@ function updateDynamicUI() {
 }
 
 function updateStaticUI() {
+    // Only show addition button if player bought at least 1 addition upgrade
+    if (additionButton) {
+        additionButton.style.display = (additionlevel >= 1) ? "inline-block" : "none";
+    }
+
     unlockautomationbtn.style.display = (factor_shift_level === 5) ? "block" : "none";
     open_automation_btn.style.display = automation_unlocked ? "block" : "none";
 
@@ -599,7 +618,7 @@ function importGame() {
         let parsed = JSON.parse(jsonString);
 
         if (typeof parsed === "object" && parsed !== null) {
-            localStorage.setItem("y_sequence_incremental_save", jsonString);
+            localStorage.setItem("y_sequence_incremental_save", JSON.stringify(parsed));
             loadGame();
             displayFull();
             alert("Game loaded successfully!");
@@ -762,26 +781,85 @@ function resetGame() {
     displayFull();
 }
 
-//////////////////////////// EVENT LISTENERS & LOOPS //////////////////////////////////////////
+//////////////////////////// GAME LOOPS & ACCELERATORS //////////////////////////////////////////
 
-// Button Listeners
-const clickBtn = document.getElementById("click-button");
-if (clickBtn) clickBtn.onclick = () => applySuccessor(true);
+let successorAcc = 0;
+let additionAcc = 0;
+let maximizeAcc = 0;
 
-const additionBtn = document.getElementById("addition-button");
-if (additionBtn) additionBtn.onclick = () => applyAddition(true);
+let lastTime = performance.now();
+let frameCount = 0;
+let lastFpsTime = performance.now();
 
-const maxBtn = document.getElementById("maximize-button");
-if (maxBtn) maxBtn.onclick = () => applyMaximize(true);
+function gameLoop(currentTime) {
+    let dt = (currentTime - lastTime) / 1000;
+    lastTime = currentTime;
 
-if (factorshiftButton) factorshiftButton.onclick = buyfactorshift;
+    // Autoclicker executions
+    if (automation_unlocked) {
+        if (successor_autoclicker_enabled && successor_autoclicker_level > 0) {
+            successorAcc += successor_autoclicker_level * dt;
+            let clicks = Math.floor(successorAcc);
+            if (clicks > 0) {
+                successorAcc -= clicks;
+                for (let i = 0; i < clicks; i++) {
+                    applySuccessor(false);
+                }
+            }
+        }
 
-// Keyboard shortcuts
+        if (addition_autoclicker_enabled && addition_autoclicker_level > 0) {
+            additionAcc += addition_autoclicker_level * dt;
+            let clicks = Math.floor(additionAcc);
+            if (clicks > 0) {
+                additionAcc -= clicks;
+                for (let i = 0; i < clicks; i++) {
+                    applyAddition(false);
+                }
+            }
+        }
+
+        if (maximize_autoclicker_enabled && maximize_autoclicker_level > 0) {
+            maximizeAcc += maximize_autoclicker_level * dt;
+            let clicks = Math.floor(maximizeAcc);
+            if (clicks > 0) {
+                maximizeAcc -= clicks;
+                for (let i = 0; i < clicks; i++) {
+                    applyMaximize(false);
+                }
+            }
+        }
+    }
+
+    updateDynamicUI();
+
+    // FPS Counter
+    frameCount++;
+    if (currentTime - lastFpsTime >= 1000) {
+        if (fpsdisplay) fpsdisplay.textContent = frameCount;
+        frameCount = 0;
+        lastFpsTime = currentTime;
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Autosave loop (every 5 seconds)
+setInterval(saveGame, 5000);
+
+// Keydown Shortcuts
 document.addEventListener("keydown", (event) => {
     if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
 
     const key = event.key.toLowerCase();
     if (key === "s") applySuccessor(true);
-    if (key === "a") applyAddition(true);
+    if (key === "a" && additionlevel >= 1) applyAddition(true);
     if (key === "m") applyMaximize(true);
 });
+
+// Initialize Game
+window.onload = function () {
+    loadGame();
+    displayFull();
+    requestAnimationFrame(gameLoop);
+};
