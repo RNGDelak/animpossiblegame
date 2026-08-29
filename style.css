@@ -1,68 +1,126 @@
-/* Force wrapper to act as an explicit inline flex container with a fixed padding frame */
+/* Base Layout Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 15px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  text-align: center;
+  background-image: linear-gradient(#adadad, #ffffff);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+/* Headings */
+h1 {
+  font-size: 1.8rem;
+  margin: 10px 0;
+}
+
+h2 {
+  font-size: 1.4rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+}
+
+/* Scrollable Wrapper & Container Fixes */
 .scrollable-wrapper {
-width: 100%;
-box-sizing: border-box;
-overflow-x: scroll;
-overflow-y: hidden;
-
-/* Forces hardware acceleration layer to lock scrollbar position */
-will-change: scroll-position;
-
-/* Ensure layout does not shift vertically */
-padding-top: 10px;
-padding-bottom: 10px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  will-change: scroll-position;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  -webkit-overflow-scrolling: touch;
 }
 
 .scrollable {
-display: inline-flex !important;
-align-items: center !important;
-min-width: 100%;
-white-space: nowrap;
-box-sizing: border-box;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: max-content;
+  min-width: 100%;
+  white-space: nowrap;
+  box-sizing: border-box;
+  padding: 0 10px;
 }
 
 .scrollable h1,
 .scrollable h2,
 .scrollable h3 {
-margin: 0 !important;
-padding: 0 !important;
-line-height: 1 !important;
-display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  display: block !important;
+  text-align: center;
 }
 
-/* Fixed size scrollbar track prevents thumb jump during content replacements */
+/* Scrollbar Customization */
 .scrollable-wrapper::-webkit-scrollbar {
-height: 4px !important;
-background: transparent;
+  height: 4px !important;
+  background: transparent;
 }
 
 .scrollable-wrapper::-webkit-scrollbar-thumb {
-background: rgba(0, 0, 0, 0.4) !important;
-border-radius: 4px !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-radius: 4px !important;
 }
 
 .scrollable-wrapper::-webkit-scrollbar-track {
-background: rgba(0, 0, 0, 0) !important;
+  background: rgba(0, 0, 0, 0) !important;
 }
 
-/* Button & navigation styles from original setup */
-button {
-touch-action: manipulation;
--webkit-tap-highlight-color: transparent;
-}
-
+/* Navigation Tabs & Buttons */
 .tab-navigation {
-display: flex;
-flex-direction: row;
-gap: 10px;
-align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 .tab-navigation button {
-display: inline-block;
-width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
 }
 
+/* Tab Content Areas */
 .tabs {
-width: 100%;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Divider Line */
+hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+  margin: 15px 0;
 }
