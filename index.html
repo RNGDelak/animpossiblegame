@@ -39,7 +39,8 @@
     <!-- Ordinal Tab -->
     <div id="ordinal-tab" class="tabs">
         <button id="click-button" onclick="applySuccessor(true);">Successor (+1) (S)</button>
-        <button id="addition-button" onclick="applyAddition(true);">Addition (+Addition Power) (A)</button>
+        <!-- Addition button hidden until additionlevel >= 1 -->
+        <button id="addition-button" onclick="applyAddition(true);" style="display: none;">Addition (+Addition Power) (A)</button>
         <button id="maximize-button" onclick="applyMaximize(true);">Maximize the ordinal base (M)</button>
         <br><br>
 
