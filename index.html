@@ -6,26 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ordinal Upgrader</title>
     <link rel="stylesheet" href="style.css">
+    </link>
 </head>
 
 <body style="background-image: linear-gradient(#adadad,#ffffff); background-repeat: no-repeat; background-size: auto;">
     <h1>An Impossible Game: where you click g<sub>Lim(ω-Y)</sub>(10) times</h1>
-    
-    <!-- Wrapped to isolate scrollbar calculation from changing math text sizes -->
-    <div class="scrollable-wrapper">
-        <div class="scrollable">
-            <h2 style="margin: 0;">Current number: <span id="current-number">0</span></h2>
-        </div>
-    </div>
-    
-    <div class="scrollable-wrapper">
-        <div class="scrollable">
-            <h2 style="margin: 0;">Which is equilvalent to: <span id="current-converted">0</span></h2>
-        </div>
-    </div>
-
+    <h2 class="scrollable">Current number: <span id="current-number">0</span></h2>
+    <h2 class="scrollable">Which is equilvalent to: <span id="current-converted">0</span></h2>
     <h3 style="font-size: small; color: #000000;">FPS: <span id="fps-display">0</span></h3>
-    
     <div class="tab-navigation">
         <button id="ordinal-tab-open" onclick="showTab('ordinal-tab')">Ordinal</button>
         <button id="automation-tab-open" onclick="showTab('automation-tab')" style="display: none;">Automation</button>
@@ -49,49 +37,87 @@
     </div>
 
     <div id="automation-tab" class="tabs" style="display: none;">
-        <h3 id="successor-autoclicker-information">You have 0 successor autoclicker, which is clicking the successor button 0 time per second</h3>
-        <h3 id="maximize-autoclicker-information">You have 0 maximize autoclicker, which is clicking the maximize button 0 time per second</h3>
-        <button id="buy-successor-autoclicker-button" onclick="purchase_successor_autoclicker()">Buy Successor Autoclicker</button>
-        <button id="buy-maximize-autoclicker-button" onclick="purchase_maximize_autoclicker()">Buy Maximize Autoclicker</button>
+        <!-- Successor Autoclicker Control Panel -->
+        <div class="automation-card">
+            <h3 id="successor-autoclicker-information">You have 0 successor autoclicker</h3>
+            <button id="buy-successor-autoclicker-button" onclick="purchase_successor_autoclicker()">Buy Successor
+                Autoclicker</button>
+            <br><br>
+            <div class="automation-settings">
+                <button id="toggle-successor-autoclicker" onclick="toggleSuccessorAutoclicker()"
+                    class="toggle-btn">ON</button>
+                <label for="successor-interval-input">Interval (ms):</label>
+                <input type="number" id="successor-interval-input" min="0" step="10"
+                    oninput="updateSuccessorInterval(this.value)">
+                <span id="successor-min-interval-info" class="min-interval-tag">Minimum Allowed Interval: 0ms</span>
+            </div>
+        </div>
+
+        <br>
+        <hr><br>
+
+        <!-- Maximize Autoclicker Control Panel -->
+        <div class="automation-card">
+            <h3 id="maximize-autoclicker-information">You have 0 maximize autoclicker</h3>
+            <button id="buy-maximize-autoclicker-button" onclick="purchase_maximize_autoclicker()">Buy Maximize
+                Autoclicker</button>
+            <br><br>
+            <div class="automation-settings">
+                <button id="toggle-maximize-autoclicker" onclick="toggleMaximizeAutoclicker()"
+                    class="toggle-btn">ON</button>
+                <label for="maximize-interval-input">Interval (ms):</label>
+                <input type="number" id="maximize-interval-input" min="0" step="10"
+                    oninput="updateMaximizeInterval(this.value)">
+                <span id="maximize-min-interval-info" class="min-interval-tag">Minimum Allowed Interval: 0ms</span>
+            </div>
+        </div>
     </div>
 
     <div id="upgrade-tab" class="tabs" style="display: none;">
-        <div class="scrollable-wrapper">
-            <div class="scrollable">
-                <h1 id="upgrade-successor-power-example" style="text-align: center; margin: 0;">g<sub>ω-Y(1,2,4)</sub>(10) ↦ g<sub>ω-Y(1,2,4,1)</sub>(10)</h1>
-            </div>
-        </div>
-        
-        <div class="scrollable-wrapper">
-            <div class="scrollable">
-                <h2 id="upgrade-successor-power-example-converted" style="text-align: center; margin: 0;">Which is equilvalent to: g<sub>ω-Y(&psi;<sub>0</sub>(ω))</sub>(10) ↦ g<sub>ω-Y(&psi;<sub>0</sub>(ω)+1)</sub>(10)</h2>
-            </div>
-        </div>
-
-        <div class="scrollable-wrapper">
-            <div class="scrollable">
-                <h3 id="upgrade-successor-power-information" style="text-align: center; margin: 0;">Your current successor power is: 1</h3>
-            </div>
-        </div>
+        <h1 id="upgrade-successor-power-example" style="text-align: center;" class="scrollable">
+            g<sub>ω-Y(1,2,4)</sub>(10) ↦ g<sub>ω-Y(1,2,4,1)</sub>(10)</h1>
+        <h2 id="upgrade-successor-power-example-converted" style="text-align: center;" class="scrollable">Which is
+            equilvalent to: g<sub>ω-Y(&psi;<sub>0</sub>(ω))</sub>(10) ↦ g<sub>ω-Y(&psi;<sub>0</sub>(ω)+1)</sub>(10)</h2>
+        <h3 id="upgrade-successor-power-information" style="text-align: center;" class="scrollable">Your current
+            successor power is: 1</h3>
         <br>
-        <button id="successor-maximize-button" onclick="maximizesuccessor()">Maximize the successor base for efficiency</button><br>
-        <h3 id="successor-upgrade-information">You have upgraded successor for 0 times, which equilvalent to the boost of x1 speed</h3>
-        <button id="successor-upgrade-purchase-button" onclick="purchase_successor_power_upgrade()">Upgrade successor power by 1 for: NaN</button><span id="succ-upgrade-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span> <br><br>
-        <button id="successor-upgrade-purchase-button2" onclick="purchase_successor_power_upgrade2()">Upgrade successor power by 2 for: NaN</button><span id="succ-upgrade-2-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span> <br><br>
-        <button id="successor-upgrade-purchase-button3" onclick="purchase_successor_power_upgrade3()">Upgrade successor power by ω for: NaN</button><span id="succ-upgrade-3-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span> <br><br>
-        <button id="successor-upgrade-purchase-button4" onclick="purchase_successor_power_upgrade4()">Increase successor power by the lowest sum terms for NaN</button><span id="succ-upgrade-4-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span> <br><br>
-        <button id="successor-upgrade-purchase-button5" onclick="purchase_successor_power_upgrade5()"></button><span id="succ-upgrade-5-info" style="font-size: large;"></span> <br><br>
-        <button id="successor-upgrade-purchase-button6" onclick="purchase_successor_power_upgrade6()"></button><span id="succ-upgrade-6-info" style="font-size: large;"></span> <br><br>
-        <button id="successor-upgrade-purchase-button7" onclick="purchase_successor_power_upgrade7()"></button><span id="succ-upgrade-7-info" style="font-size: large;"></span> <br><br>
-        <button id="successor-upgrade-purchase-button8" onclick="purchase_successor_power_upgrade8()"></button><span id="succ-upgrade-8-info" style="font-size: large;"></span> <br><br>
-        <button id="successor-upgrade-purchase-button9" onclick="purchase_successor_power_upgrade9()"></button><span id="succ-upgrade-9-info" style="font-size: large;"></span> <br><br>
-        <button id="successor-upgrade-purchase-button10" onclick="purchase_successor_power_upgrade10()"></button><span id="succ-upgrade-10-info" style="font-size: large;"></span> <br><br>
+        <button id="successor-maximize-button" onclick="maximizesuccessor()">Maximize the successor base for
+            efficiency</button><br>
+        <h3 id="successor-upgrade-information">You have upgraded successor for 0 times, which equilvalent to the boost
+            of x1 speed</h3>
+        <button id="successor-upgrade-purchase-button" onclick="purchase_successor_power_upgrade()">Upgrade successor
+            power by 1 for: NaN</button><span id="succ-upgrade-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span>
+        <br><br>
+        <button id="successor-upgrade-purchase-button2" onclick="purchase_successor_power_upgrade2()">Upgrade successor
+            power by 2 for: NaN</button><span id="succ-upgrade-2-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span>
+        <br><br>
+        <button id="successor-upgrade-purchase-button3" onclick="purchase_successor_power_upgrade3()">Upgrade successor
+            power by ω for: NaN</button><span id="succ-upgrade-3-info" style="font-size: large;">: 1,1 ↦ 1,1,1</span>
+        <br><br>
+        <button id="successor-upgrade-purchase-button4" onclick="purchase_successor_power_upgrade4()">Increase successor
+            power by the lowest sum terms for NaN</button><span id="succ-upgrade-4-info" style="font-size: large;">: 1,1
+            ↦ 1,1,1</span> <br><br>
+        <button id="successor-upgrade-purchase-button5" onclick="purchase_successor_power_upgrade5()"></button><span
+            id="succ-upgrade-5-info" style="font-size: large;"></span> <br><br>
+        <button id="successor-upgrade-purchase-button6" onclick="purchase_successor_power_upgrade6()"></button><span
+            id="succ-upgrade-6-info" style="font-size: large;"></span> <br><br>
+        <button id="successor-upgrade-purchase-button7" onclick="purchase_successor_power_upgrade7()"></button><span
+            id="succ-upgrade-7-info" style="font-size: large;"></span> <br><br>
+        <button id="successor-upgrade-purchase-button8" onclick="purchase_successor_power_upgrade8()"></button><span
+            id="succ-upgrade-8-info" style="font-size: large;"></span> <br><br>
+        <button id="successor-upgrade-purchase-button9" onclick="purchase_successor_power_upgrade9()"></button><span
+            id="succ-upgrade-9-info" style="font-size: large;"></span> <br><br>
+        <button id="successor-upgrade-purchase-button10" onclick="purchase_successor_power_upgrade10()"></button><span
+            id="succ-upgrade-10-info" style="font-size: large;"></span> <br><br>
+
     </div>
 
     <div id="setting-tab" class="tabs" style="display: none;">
         <button onclick="resetGame()">HARD RESET</button>
         <button onclick="exportGame()">Export Save</button>
-        <button onclick="importGame()">Import Save</button>
+        <button onclick="importGame()">Import Save</button><br>
+        <button id="toggle-conversion-btn" onclick="toggleconversion()"
+                    class="toggle-btn">ON</button> Converting between &omega;-Y and OCF/BMS (turn this off if you suffer from lag)
     </div>
 </body>
 

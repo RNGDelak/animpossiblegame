@@ -5,6 +5,18 @@ let factor_shift_level = 0;
 let automation_unlocked = false;
 let ObjectiveHtml = document.getElementById("Objective")
 
+let convert_enabled = true
+
+// --- AUTOMATION STATE VARIABLES ---
+let successor_autoclicker_enabled = true;
+let maximize_autoclicker_enabled = true;
+
+let successor_target_interval = 1000; // default 1 second (1000ms)
+let maximize_target_interval = 1000;
+
+// Dynamic minimum execution interval enforced by browser timers (~16ms for 60fps)
+const MIN_HARDWARE_INTERVAL = 1; 
+
 let successor_autoclicker_level = 0;
 let maximize_autoclicker_level = 0;
 
@@ -83,6 +95,17 @@ const succupgradeinfo8 = document.getElementById("succ-upgrade-8-info");
 const succupgradeinfo9 = document.getElementById("succ-upgrade-9-info");
 const succupgradeinfo10 = document.getElementById("succ-upgrade-10-info");
 
+// Cache DOM Elements for Automation Controls
+const successorToggleBtn = document.getElementById("toggle-successor-autoclicker");
+const maximizeToggleBtn = document.getElementById("toggle-maximize-autoclicker");
+const conversionToggleBtn = document.getElementById("toggle-conversion-btn");
+
+const successorIntervalInput = document.getElementById("successor-interval-input");
+const maximizeIntervalInput = document.getElementById("maximize-interval-input");
+
+const successorMinIntervalInfo = document.getElementById("successor-min-interval-info");
+const maximizeMinIntervalInfo = document.getElementById("maximize-min-interval-info");
+
 
 const factorshiftcost = [
     "1,2",
@@ -92,6 +115,49 @@ const factorshiftcost = [
     "1,2,2",
     "Limit"
 ];
+
+
+
+function toggleconversion(){
+    convert_enabled = !convert_enabled
+}
+
+
+//////////////////////////// AUTOMATION CONTROLS //////////////////////////////////////////
+
+function getSuccessorMinInterval() {
+    if (successor_autoclicker_level <= 0) return 0;
+    return Math.max(MIN_HARDWARE_INTERVAL, Math.round(1000 / successor_autoclicker_level));
+}
+
+function getMaximizeMinInterval() {
+    if (maximize_autoclicker_level <= 0) return 0;
+    return Math.max(MIN_HARDWARE_INTERVAL, Math.round(1000 / maximize_autoclicker_level));
+}
+
+function toggleSuccessorAutoclicker() {
+    successor_autoclicker_enabled = !successor_autoclicker_enabled;
+    updateStaticUI();
+}
+
+function toggleMaximizeAutoclicker() {
+    maximize_autoclicker_enabled = !maximize_autoclicker_enabled;
+    updateStaticUI();
+}
+
+function updateSuccessorInterval(val) {
+    let parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+        successor_target_interval = parsed;
+    }
+}
+
+function updateMaximizeInterval(val) {
+    let parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+        maximize_target_interval = parsed;
+    }
+}
 
 //////////////////////////// HELPER FUNCTIONS //////////////////////////////////////////
 
@@ -269,6 +335,34 @@ function updateStaticUI() {
     updateElement(maximizeAutoclickerInfo, `You have ${maximize_autoclicker_level} maximize autoclicker, which is clicking the maximize button ${maximize_autoclicker_level} ${maxTimes} per second`);
     updateElement(buyMaximizeAutoclickerBtn, `Buy Maximize Autoclicker for ${formatG(maxCost, currentBase)}`);
 
+    // --- AUTOMATION UI CONTROLS UPDATE ---
+    if (successorToggleBtn) {
+        successorToggleBtn.textContent = successor_autoclicker_enabled ? "ON" : "OFF";
+        successorToggleBtn.style.backgroundColor = successor_autoclicker_enabled ? "#4CAF50" : "#f44336";
+    }
+    if (maximizeToggleBtn) {
+        maximizeToggleBtn.textContent = maximize_autoclicker_enabled ? "ON" : "OFF";
+        maximizeToggleBtn.style.backgroundColor = maximize_autoclicker_enabled ? "#4CAF50" : "#f44336";
+    }
+
+    if (conversionToggleBtn) {
+        conversionToggleBtn.textContent = convert_enabled ? "ON" : "OFF";
+        conversionToggleBtn.style.backgroundColor = convert_enabled ? "#4CAF50" : "#f44336";
+    }
+
+    const minSuccInt = getSuccessorMinInterval();
+    const minMaxInt = getMaximizeMinInterval();
+
+    updateElement(successorMinIntervalInfo, `Minimum Allowed Interval: ${minSuccInt}ms ${minSuccInt === MIN_HARDWARE_INTERVAL ? '(Hardware Cap)' : ''}`);
+    updateElement(maximizeMinIntervalInfo, `Minimum Allowed Interval: ${minMaxInt}ms ${minMaxInt === MIN_HARDWARE_INTERVAL ? '(Hardware Cap)' : ''}`);
+
+    if (successorIntervalInput && document.activeElement !== successorIntervalInput) {
+        successorIntervalInput.value = successor_target_interval;
+    }
+    if (maximizeIntervalInput && document.activeElement !== maximizeIntervalInput) {
+        maximizeIntervalInput.value = maximize_target_interval;
+    }
+
     // --- CACHED CONVERSIONS FOR UPGRADE COSTS ---
     const succCost1 = convert_From_wY(successorupgradecost, "2-shifted OCF");
     const succCost2 = convert_From_wY(successorupgradecost2, "2-shifted OCF");
@@ -285,7 +379,6 @@ function updateStaticUI() {
     const convertedsccuessorpower = convert_From_wY(successoramount, "2-shifted OCF");
     const extractsumterm = extractsumterms(successoramount);
     const monicSuccessor = monictify(successoramount);
-    const extractmonicSuccessorsumterm = extractsumterms(monicSuccessor)
 
     updateElement(upgradesuccessorpowerinformation, "Your current successor power is: " + convertedsccuessorpower + " (in ω-Y terms: " + successoramount + ")");
     updateElement(successorupgradeinformation, "You have upgraded successor for " + successorlevel + " " + timesText2 + ", which equilvalent to the boost of " + (successorlevel + 1) + "x");
@@ -301,7 +394,6 @@ function updateStaticUI() {
     updateElement(successorupgradepurchasebutton9, (successorupgrade9unlocked) ? ("Triple the successor power for " + formatG(succCost9, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω3</sup>", currentBase));
     updateElement(successorupgradepurchasebutton10, (successorupgrade10unlocked) ? ("Multiply successor power by ω for " + formatG(succCost10, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω<sup>2</sup></sup>", currentBase));
 
-    // --- REUSED PRE-CONVERTED SUCCESSOR POWER & COMPUTED VALUES ---
     updateElement(succupgradeinfo, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(successoramount + ",1", "2-shifted OCF"));
     updateElement(succupgradeinfo2, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(successoramount + ",1,1", "2-shifted OCF"));
     updateElement(succupgradeinfo3, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(addY(successoramount, "1,2"), "2-shifted OCF"));
@@ -577,6 +669,10 @@ function saveGame() {
         maximize_autoclicker_level,
         successor_autoclicker_cost,
         maximize_autoclicker_cost,
+        successor_autoclicker_enabled,
+        maximize_autoclicker_enabled,
+        successor_target_interval,
+        maximize_target_interval,
         successoramount,
         successorlevel,
         successorupgradecost,
@@ -597,7 +693,8 @@ function saveGame() {
         successorupgrade9unlocked,
         successorupgradecost9,
         successorupgrade10unlocked,
-        successorupgradecost10
+        successorupgradecost10,
+        convert_enabled
     };
     localStorage.setItem("y_sequence_incremental_save", JSON.stringify(saveData));
 }
@@ -617,6 +714,11 @@ function loadGame() {
             if (data.maximize_autoclicker_level !== undefined) maximize_autoclicker_level = data.maximize_autoclicker_level;
             if (data.successor_autoclicker_cost !== undefined) successor_autoclicker_cost = data.successor_autoclicker_cost;
             if (data.maximize_autoclicker_cost !== undefined) maximize_autoclicker_cost = data.maximize_autoclicker_cost;
+
+            if (data.successor_autoclicker_enabled !== undefined) successor_autoclicker_enabled = data.successor_autoclicker_enabled;
+            if (data.maximize_autoclicker_enabled !== undefined) maximize_autoclicker_enabled = data.maximize_autoclicker_enabled;
+            if (data.successor_target_interval !== undefined) successor_target_interval = data.successor_target_interval;
+            if (data.maximize_target_interval !== undefined) maximize_target_interval = data.maximize_target_interval;
 
             if (data.successoramount !== undefined) successoramount = data.successoramount;
             if (data.successorlevel !== undefined) successorlevel = data.successorlevel;
@@ -639,6 +741,7 @@ function loadGame() {
             if (data.successorupgradecost9 !== undefined) successorupgradecost9 = data.successorupgradecost9;
             if (data.successorupgrade10unlocked !== undefined) successorupgrade10unlocked = data.successorupgrade10unlocked;
             if (data.successorupgradecost10 !== undefined) successorupgradecost10 = data.successorupgradecost10;
+            if (data.convert_enabled !== undefined) convert_enabled = data.convert_enabled;
 
             if (factor_shift_level > 5) factor_shift_level = 5;
             currentBase = 10 - factor_shift_level;
@@ -739,7 +842,8 @@ setInterval(() => {
     saveGame();
 }, 5000);
 
-// Simple Autoclicker Interval Loop
+//////////////////////////// TICKER / LOOP //////////////////////////////////////////
+
 let lastSuccessorTick = Date.now();
 let lastMaximizeTick = Date.now();
 
@@ -747,18 +851,22 @@ setInterval(() => {
     const now = Date.now();
     let stateChanged = false;
 
-    if (successor_autoclicker_level > 0) {
-        const successorInterval = 1000 / successor_autoclicker_level;
-        if (now - lastSuccessorTick >= successorInterval) {
+    if (successor_autoclicker_level > 0 && successor_autoclicker_enabled) {
+        const minInterval = getSuccessorMinInterval();
+        const activeInterval = Math.max(minInterval, successor_target_interval);
+
+        if (now - lastSuccessorTick >= activeInterval) {
             applySuccessor(false);
             lastSuccessorTick = now;
             stateChanged = true;
         }
     }
 
-    if (maximize_autoclicker_level > 0) {
-        const maximizeInterval = 1000 / maximize_autoclicker_level;
-        if (now - lastMaximizeTick >= maximizeInterval) {
+    if (maximize_autoclicker_level > 0 && maximize_autoclicker_enabled) {
+        const minInterval = getMaximizeMinInterval();
+        const activeInterval = Math.max(minInterval, maximize_target_interval);
+
+        if (now - lastMaximizeTick >= activeInterval) {
             applyMaximize(false);
             lastMaximizeTick = now;
             stateChanged = true;

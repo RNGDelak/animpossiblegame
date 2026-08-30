@@ -243,7 +243,7 @@ class Y_Sequence {
       if (Array.isArray(s)) s = s.join(',');
       var lineBreakRegex = /\r?\n/g;
       var itemSeparatorRegex = /[\t ,]/g;
-      if (s == "Limit") return '1,' + String(n + 2);
+      if (s == "Limit") return '1,' + String(n + 1);
       function parseSequenceElement(s, i) {
          var strremoved = s;
          if (strremoved.indexOf("v") == -1 || !isFinite(Number(strremoved.substring(strremoved.indexOf("v") + 1)))) {
@@ -8779,7 +8779,7 @@ let format_cOCF = true
 
 function convert_From_wY(ord, mode) {
    if (ord == "Limit") return "Lim(&omega;-Y)"
-   if (Y_Sequence.cmp(ord, '1,2,4,8,16,32,64,128,256,512') > -1) {
+   if (Y_Sequence.cmp(ord, '1,2,4,8,16,32,64,128,256,512') > -1 || !convert_enabled) {
       return "&omega;-Y(" + ord + ")"
    }
 
