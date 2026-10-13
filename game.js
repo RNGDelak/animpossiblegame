@@ -54,6 +54,10 @@ let successorupgradecost9 = "1,2,3,2,3,2,3"; // w^w*3
 let successorupgrade10unlocked = false;
 let successorupgradecost10 = "1,2,3,3"; // w^w^2
 
+// Ticker timestamps (declared up here so toggle functions can safely reset them)
+let lastSuccessorTick = Date.now();
+let lastMaximizeTick = Date.now();
+
 // Cache DOM Elements
 const numberdisplay = document.getElementById("current-number");
 const notationcoverted = document.getElementById("current-converted");
@@ -117,9 +121,19 @@ const factorshiftcost = [
 ];
 
 
+//////////////////////////// CONVERSION HELPER //////////////////////////////////////////
 
-function toggleconversion(){
-    convert_enabled = !convert_enabled
+// Single entry point for notation conversion. Respects the ON/OFF toggle.
+function conv(ord) {
+    if (!convert_enabled) {
+        return (ord === "Limit") ? "Limit" : "&omega;-Y(" + ord + ")";
+    }
+    return convert_From_wY(ord, "2-shifted OCF");
+}
+
+function toggleconversion() {
+    convert_enabled = !convert_enabled;
+    displayFull(); // refresh both dynamic + static UI immediately
 }
 
 
@@ -137,12 +151,14 @@ function getMaximizeMinInterval() {
 
 function toggleSuccessorAutoclicker() {
     successor_autoclicker_enabled = !successor_autoclicker_enabled;
-    updateStaticUI();
+    lastSuccessorTick = Date.now(); // restart timer so the change feels instant
+    displayFull();
 }
 
 function toggleMaximizeAutoclicker() {
     maximize_autoclicker_enabled = !maximize_autoclicker_enabled;
-    updateStaticUI();
+    lastMaximizeTick = Date.now();
+    displayFull();
 }
 
 function updateSuccessorInterval(val) {
@@ -255,6 +271,10 @@ function updateElement(el, html) {
     }
 }
 
+function setDisplay(el, show) {
+    if (el) el.style.display = show ? "" : "none";
+}
+
 //////////////////////////// RENDER FUNCTIONS //////////////////////////////////////////
 
 function updateobjective() {
@@ -292,13 +312,13 @@ function updateobjective() {
 function updateDynamicUI() {
     updateobjective();
     const isOrdEmpty = isEmptyOrdinal(currentOrdinal);
-    const convertedCurrent = convert_From_wY(currentOrdinal, "2-shifted OCF");
+    const convertedCurrent = conv(currentOrdinal);
 
     updateElement(numberdisplay, isOrdEmpty ? "0" : formatG(`&omega;-Y(${currentOrdinal})`, currentBase));
     updateElement(notationcoverted, isOrdEmpty ? "0" : formatG(convertedCurrent, currentBase));
 
     const addedvalue = addY(currentOrdinal, successoramount);
-    const convertedvalue = convert_From_wY(addedvalue, "2-shifted OCF");
+    const convertedvalue = conv(addedvalue);
     const startRaw = isOrdEmpty ? "0" : formatG(`&omega;-Y(${currentOrdinal})`, currentBase);
     const startConverted = isOrdEmpty ? "0" : formatG(convertedCurrent, currentBase);
     const endRaw = formatG(`&omega;-Y(${addedvalue})`, currentBase);
@@ -306,15 +326,19 @@ function updateDynamicUI() {
 
     updateElement(upgradesuccessorpowerexample, `${startRaw} ↦ ${endRaw}`);
     updateElement(upgradesuccessorpowerexampleconverted, `Which is equivalent to: ${startConverted} ↦ ${endConverted}`);
+
+    // Hide the "converted" lines entirely when conversion is OFF (they'd just duplicate the raw line)
+    setDisplay(notationcoverted, convert_enabled);
+    setDisplay(upgradesuccessorpowerexampleconverted, convert_enabled);
 }
 
-// Low Frequency: Only called on upgrade/shift button actions
+// Low Frequency: Only called on upgrade/shift/toggle actions
 function updateStaticUI() {
     unlockautomationbtn.style.display = (factor_shift_level === 5) ? "block" : "none";
     open_automation_btn.style.display = automation_unlocked ? "block" : "none";
 
     const cost = factorshiftcost[factor_shift_level];
-    const convertedCost = convert_From_wY(cost, "2-shifted OCF");
+    const convertedCost = conv(cost);
     updateElement(factorshiftButton, `Reach ${formatG(convertedCost, currentBase)} to perform a factor shift`);
 
     const timesText = factor_shift_level === 1 ? "time" : "times";
@@ -326,12 +350,12 @@ function updateStaticUI() {
         : `Reach ${formatG("&omega;<sup>&omega;+1</sup>", currentBase)} to unlock automation tab!`);
 
     const succTimes = successor_autoclicker_level === 1 ? "time" : "times";
-    const succCost = convert_From_wY(successor_autoclicker_cost, "2-shifted OCF");
+    const succCost = conv(successor_autoclicker_cost);
     updateElement(successorAutoclickerInfo, `You have ${successor_autoclicker_level} successor autoclicker, which is clicking the successor button ${successor_autoclicker_level} ${succTimes} per second`);
     updateElement(buySuccessorAutoclickerBtn, `Buy Successor Autoclicker for ${formatG(succCost, currentBase)}`);
 
     const maxTimes = maximize_autoclicker_level === 1 ? "time" : "times";
-    const maxCost = convert_From_wY(maximize_autoclicker_cost, "2-shifted OCF");
+    const maxCost = conv(maximize_autoclicker_cost);
     updateElement(maximizeAutoclickerInfo, `You have ${maximize_autoclicker_level} maximize autoclicker, which is clicking the maximize button ${maximize_autoclicker_level} ${maxTimes} per second`);
     updateElement(buyMaximizeAutoclickerBtn, `Buy Maximize Autoclicker for ${formatG(maxCost, currentBase)}`);
 
@@ -364,19 +388,19 @@ function updateStaticUI() {
     }
 
     // --- CACHED CONVERSIONS FOR UPGRADE COSTS ---
-    const succCost1 = convert_From_wY(successorupgradecost, "2-shifted OCF");
-    const succCost2 = convert_From_wY(successorupgradecost2, "2-shifted OCF");
-    const succCost3 = convert_From_wY(successorupgradecost3, "2-shifted OCF");
-    const succCost4 = convert_From_wY(successorupgradecost4, "2-shifted OCF");
-    const succCost5 = convert_From_wY(successorupgradecost5, "2-shifted OCF");
-    const succCost6 = convert_From_wY(successorupgradecost6, "2-shifted OCF");
-    const succCost7 = convert_From_wY(successorupgradecost7, "2-shifted OCF");
-    const succCost8 = convert_From_wY(successorupgradecost8, "2-shifted OCF");
-    const succCost9 = convert_From_wY(successorupgradecost9, "2-shifted OCF");
-    const succCost10 = convert_From_wY(successorupgradecost10, "2-shifted OCF");
+    const succCost1 = conv(successorupgradecost);
+    const succCost2 = conv(successorupgradecost2);
+    const succCost3 = conv(successorupgradecost3);
+    const succCost4 = conv(successorupgradecost4);
+    const succCost5 = conv(successorupgradecost5);
+    const succCost6 = conv(successorupgradecost6);
+    const succCost7 = conv(successorupgradecost7);
+    const succCost8 = conv(successorupgradecost8);
+    const succCost9 = conv(successorupgradecost9);
+    const succCost10 = conv(successorupgradecost10);
 
     // --- CACHED VALUES FOR SUCCESSOR AMOUNT ---
-    const convertedsccuessorpower = convert_From_wY(successoramount, "2-shifted OCF");
+    const convertedsccuessorpower = conv(successoramount);
     const extractsumterm = extractsumterms(successoramount);
     const monicSuccessor = monictify(successoramount);
 
@@ -394,16 +418,16 @@ function updateStaticUI() {
     updateElement(successorupgradepurchasebutton9, (successorupgrade9unlocked) ? ("Triple the successor power for " + formatG(succCost9, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω3</sup>", currentBase));
     updateElement(successorupgradepurchasebutton10, (successorupgrade10unlocked) ? ("Multiply successor power by ω for " + formatG(succCost10, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω<sup>2</sup></sup>", currentBase));
 
-    updateElement(succupgradeinfo, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(successoramount + ",1", "2-shifted OCF"));
-    updateElement(succupgradeinfo2, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(successoramount + ",1,1", "2-shifted OCF"));
-    updateElement(succupgradeinfo3, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(addY(successoramount, "1,2"), "2-shifted OCF"));
-    updateElement(succupgradeinfo4, ": " + convertedsccuessorpower + " ↦ " + convert_From_wY(addY(successoramount, extractsumterm.at(-1)), "2-shifted OCF"));
-    updateElement(succupgradeinfo5, (successorupgrade5unlocked) ? (": " + convertedsccuessorpower + " ↦ " + convert_From_wY(addY(successoramount, extractsumterm[0]), "2-shifted OCF")) : "");
-    updateElement(succupgradeinfo6, (successorupgrade6unlocked) ? (": " + convertedsccuessorpower + " ↦ " + convert_From_wY(addY(successoramount, monicSuccessor), "2-shifted OCF")) : "");
-    updateElement(succupgradeinfo7, (successorupgrade7unlocked) ? (": " + convertedsccuessorpower + " ↦ " + convert_From_wY(addY(successoramount, mulYtoNumber(monicSuccessor, 2)), "2-shifted OCF")) : "");
-    updateElement(succupgradeinfo8, (successorupgrade8unlocked) ? (": " + convertedsccuessorpower + " ↦ " + convert_From_wY(mulYtoNumber(successoramount, 2), "2-shifted OCF")) : "");
-    updateElement(succupgradeinfo9, (successorupgrade9unlocked) ? (": " + convertedsccuessorpower + " ↦ " + convert_From_wY(mulYtoNumber(successoramount, 3), "2-shifted OCF")) : "");
-    updateElement(succupgradeinfo10, (successorupgrade10unlocked) ? (": " + convertedsccuessorpower + " ↦ " + convert_From_wY(extractsumterm.map(x => (Y_Sequence.cmp(x,"") > 0)? x+",2" : "1").join(','), "2-shifted OCF")) : "");
+    updateElement(succupgradeinfo, ": " + convertedsccuessorpower + " ↦ " + conv(successoramount + ",1"));
+    updateElement(succupgradeinfo2, ": " + convertedsccuessorpower + " ↦ " + conv(successoramount + ",1,1"));
+    updateElement(succupgradeinfo3, ": " + convertedsccuessorpower + " ↦ " + conv(addY(successoramount, "1,2")));
+    updateElement(succupgradeinfo4, ": " + convertedsccuessorpower + " ↦ " + conv(addY(successoramount, extractsumterm.at(-1))));
+    updateElement(succupgradeinfo5, (successorupgrade5unlocked) ? (": " + convertedsccuessorpower + " ↦ " + conv(addY(successoramount, extractsumterm[0]))) : "");
+    updateElement(succupgradeinfo6, (successorupgrade6unlocked) ? (": " + convertedsccuessorpower + " ↦ " + conv(addY(successoramount, monicSuccessor))) : "");
+    updateElement(succupgradeinfo7, (successorupgrade7unlocked) ? (": " + convertedsccuessorpower + " ↦ " + conv(addY(successoramount, mulYtoNumber(monicSuccessor, 2)))) : "");
+    updateElement(succupgradeinfo8, (successorupgrade8unlocked) ? (": " + convertedsccuessorpower + " ↦ " + conv(mulYtoNumber(successoramount, 2))) : "");
+    updateElement(succupgradeinfo9, (successorupgrade9unlocked) ? (": " + convertedsccuessorpower + " ↦ " + conv(mulYtoNumber(successoramount, 3))) : "");
+    updateElement(succupgradeinfo10, (successorupgrade10unlocked) ? (": " + convertedsccuessorpower + " ↦ " + conv(extractsumterm.map(x => (Y_Sequence.cmp(x,"") > 0)? x+",2" : "1").join(','))) : "");
 }
 
 function displayFull() {
@@ -804,6 +828,8 @@ function resetGame() {
 //////////////////////////// EVENT LISTENERS & LOOPS //////////////////////////////////////////
 
 // Button Listeners for elements missing inline onclick attributes in HTML
+// (the three ON/OFF toggles and the interval inputs use inline handlers in the HTML,
+//  so they are intentionally NOT wired here, to avoid double-firing)
 document.getElementById("click-button").onclick = () => applySuccessor(true);
 document.getElementById("maximize-button").onclick = () => applyMaximize(true);
 factorshiftButton.onclick = buyfactorshift;
@@ -843,9 +869,6 @@ setInterval(() => {
 }, 5000);
 
 //////////////////////////// TICKER / LOOP //////////////////////////////////////////
-
-let lastSuccessorTick = Date.now();
-let lastMaximizeTick = Date.now();
 
 setInterval(() => {
     const now = Date.now();
@@ -903,4 +926,3 @@ function updateFPSCounter(now) {
 
 // Start the FPS loop
 requestAnimationFrame(updateFPSCounter);
-
