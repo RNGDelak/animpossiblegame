@@ -27,19 +27,20 @@ button {
     display: block;
     width: 100%;
     white-space: nowrap;
-    overflow-x: auto;
+    overflow-x: scroll;      /* always reserve the scrollbar row */
     overflow-y: hidden;
-    
-    /* Remove the static height calculation so <sub> and large fonts don't clip */
-    height: auto;
-    min-height: 1.5em;
-    line-height: normal;
+    line-height: 1.4;
+    min-height: calc(1.4em + 10px);
     padding-bottom: 6px;
     box-sizing: border-box;
-    
-    /* iOS smooth scrolling */
     -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
+}
+
+.scrollable sub,
+.scrollable sup,
+.upgrade-row sub,
+.upgrade-row sup {
+    line-height: 0;
 }
 
 .scrollable::-webkit-scrollbar {
@@ -49,4 +50,52 @@ button {
 .scrollable::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
+}
+
+/* Upgrade rows: button + description inline when there is room,
+   description drops to its own line when space is tight */
+.upgrade-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    width: 100%;
+    margin-bottom: 14px;
+}
+
+.upgrade-row > button {
+    flex: 0 1 auto;
+    max-width: 100%;         /* never wider than the page */
+    white-space: normal;     /* long labels wrap onto more lines */
+    overflow-wrap: anywhere;
+    text-align: left;
+}
+
+.upgrade-row > span[id^="succ-upgrade-"] {
+    flex: 1 1 240px;         /* needs ~240px beside the button, else wraps below */
+    min-width: 0;
+    display: block;
+    white-space: nowrap;
+    overflow-x: scroll;      /* always reserve the scrollbar -> no jitter */
+    overflow-y: hidden;
+    line-height: 1.4;
+    min-height: calc(1.4em + 10px);
+    padding: 4px 0 6px;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+}
+
+.upgrade-row > span[id^="succ-upgrade-"]::-webkit-scrollbar {
+    height: 4px;
+}
+
+.upgrade-row > span[id^="succ-upgrade-"]::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+/* Upgrade buttons: grey by default, green when purchasable */
+button.affordable {
+    background-color: #4CAF50;
+    color: #ffffff;
 }

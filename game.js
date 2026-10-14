@@ -308,9 +308,34 @@ function updateobjective() {
     updateElement(ObjectiveHtml, objectiveText);
 }
 
+// Turns upgrade buttons green when they can be purchased right now
+function updateUpgradeButtonColors() {
+    const checks = [
+        [successorupgradepurchasebutton,   successorupgradecost],
+        [successorupgradepurchasebutton2,  successorupgradecost2],
+        [successorupgradepurchasebutton3,  successorupgradecost3],
+        [successorupgradepurchasebutton4,  successorupgradecost4],
+        [successorupgradepurchasebutton5,  successorupgrade5unlocked  ? successorupgradecost5  : "1,2,3,2,2"],
+        [successorupgradepurchasebutton6,  successorupgrade6unlocked  ? successorupgradecost6  : "1,2,3,2,2,2"],
+        [successorupgradepurchasebutton7,  successorupgrade7unlocked  ? successorupgradecost7  : "1,2,3,2,2,2,2"],
+        [successorupgradepurchasebutton8,  successorupgrade8unlocked  ? successorupgradecost8  : "1,2,3,2,3"],
+        [successorupgradepurchasebutton9,  successorupgrade9unlocked  ? successorupgradecost9  : "1,2,3,2,3,2,3"],
+        [successorupgradepurchasebutton10, successorupgrade10unlocked ? successorupgradecost10 : "1,2,3,3"],
+    ];
+    checks.push(
+        [buySuccessorAutoclickerBtn, successor_autoclicker_cost],
+        [buyMaximizeAutoclickerBtn,  maximize_autoclicker_cost]
+    );
+    for (const [btn, cost] of checks) {
+        if (!btn) continue;
+        btn.classList.toggle("affordable", Y_Sequence.cmp(cost, currentOrdinal) <= 0);
+    }
+}
+
 // High Frequency: Runs on ticks or quick clicks (fast text update only)
 function updateDynamicUI() {
     updateobjective();
+    updateUpgradeButtonColors();
     const isOrdEmpty = isEmptyOrdinal(currentOrdinal);
     const convertedCurrent = conv(currentOrdinal);
 
