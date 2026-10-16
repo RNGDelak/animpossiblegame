@@ -35,14 +35,14 @@ button {
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
 }
-
+/* idk
 .scrollable sub,
 .scrollable sup,
 .upgrade-row sub,
 .upgrade-row sup {
     line-height: 0;
 }
-
+*/
 .scrollable::-webkit-scrollbar {
     height: 4px;
 }
