@@ -37,6 +37,7 @@
 
     <div id="automation-tab" class="tabs" style="display: none;">
         <!-- Successor Autoclicker Control Panel -->
+        <h2>Tier 0 automations</h2>
         <div class="automation-card">
             <h3 id="successor-autoclicker-information">You have 0 successor autoclicker</h3>
             <button id="buy-successor-autoclicker-button" onclick="purchase_successor_autoclicker()">Buy Successor
@@ -70,13 +71,35 @@
                 <span id="maximize-min-interval-info" class="min-interval-tag">Minimum Allowed Interval: 0ms</span>
             </div>
         </div>
+        <br>
+        <hr>
+
+        <h2 style="color:blue">Tier 1 automations</h2>
+
+        <!-- Successor Power Maximize Autoclicker Control Panel (unlocked in the Addition tab) -->
+        <div id="spmax-autoclicker-card" style="display: none;">
+
+            <div class="automation-card">
+                <h3 id="spmax-autoclicker-information">You have 0 successor power maximize autoclicker</h3>
+                <button id="buy-spmax-autoclicker-button" onclick="purchase_spmax_autoclicker()">Buy Successor Power
+                    Maximize Autoclicker</button>
+                <br><br>
+                <div class="automation-settings">
+                    <button id="toggle-spmax-autoclicker" onclick="toggleSpMaxAutoclicker()"
+                        class="toggle-btn">ON</button>
+                    <label for="spmax-interval-input">Interval (ms):</label>
+                    <input type="number" id="spmax-interval-input" min="0" step="10"
+                        oninput="updateSpMaxInterval(this.value)">
+                    <span id="spmax-min-interval-info" class="min-interval-tag">Minimum Allowed Interval: 0ms</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="upgrade-tab" class="tabs" style="display: none;">
         <div class="tab-navigation">
             <button class="successor-nav-btn" onclick="showTab('upgrade-tab')">Successor</button>
-            <button class="addition-nav-btn" onclick="showTab('addition-tab')"
-                style="display: none;">Addition</button>
+            <button class="addition-nav-btn" onclick="showTab('addition-tab')" style="display: none;">Addition</button>
         </div>
         <h2>Successor</h2>
         <h3>You can make your successor button more powerful by then...</h3>
@@ -150,11 +173,31 @@
     <div id="addition-tab" class="tabs" style="display: none;">
         <div class="tab-navigation">
             <button class="successor-nav-btn" onclick="showTab('upgrade-tab')">Successor</button>
-            <button class="addition-nav-btn" onclick="showTab('addition-tab')"
-                style="display: none;">Addition</button>
+            <button class="addition-nav-btn" onclick="showTab('addition-tab')" style="display: none;">Addition</button>
         </div>
         <h2 style="color:blue">Addition</h2>
-        <h3 style="color:navy">Now your successor power upgrades can be automated, apply drastically to the ordinal itself. You might find it interesting, right?...</h3>
+        <h3 style="color:navy">Now your successor power upgrades can be automated, apply drastically to the ordinal
+            itself. You might find it interesting, right?...</h3>
+        <div class="upgrade-row">
+            <button id="addition-upgrade-purchase-button1" class="addition-btn" onclick="purchase_spmax_unlock()">Unlock
+                successor power maximize autoclicker for NaN</button>
+            <span id="succ-upgrade-addition-1-info" style="font-size: large;"></span>
+        </div>
+        <div class="upgrade-row">
+            <button id="addition-upgrade-purchase-button2" class="addition-btn" onclick="purchase_spgen()">Buy Successor
+                Power Generator for NaN</button>
+            <span id="succ-upgrade-addition-2-info" style="font-size: large;"></span>
+        </div>
+        <div class="automation-card">
+            <h3 id="spgen-information">You have 0 successor power generator</h3>
+            <div class="automation-settings">
+                <button id="toggle-spgen" onclick="toggleSpGen()" class="toggle-btn">ON</button>
+                <label for="spgen-interval-input">Interval (ms):</label>
+                <input type="number" id="spgen-interval-input" min="0" step="1000"
+                    oninput="updateSpGenInterval(this.value)">
+                <span id="spgen-min-interval-info" class="min-interval-tag">Minimum Allowed Interval: 0ms</span>
+            </div>
+        </div>
     </div>
 
     <div id="setting-tab" class="tabs" style="display: none;">

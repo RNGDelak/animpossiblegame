@@ -99,7 +99,8 @@ button {
 /* Addition tab: blue button (white text) and blue themed panel */
 .addition-btn,
 .addition-nav-btn,
-#successor-upgrade-purchase-button11 {
+#successor-upgrade-purchase-button11,
+#addition-upgrade-purchase-button1 {
     background-color: blue;
     color: white;
 }

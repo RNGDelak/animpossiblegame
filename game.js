@@ -58,6 +58,22 @@ let successorupgradecost10 = "1,2,3,3"; // w^w^2
 let addition_unlocked = false;
 const additionunlockcost = "1,2,3,3,3";
 
+// Addition tab: unlocks the "successor power maximize" autoclicker
+let spmax_unlocked = false;
+const spmaxunlockcost = "1,2,3,3,3,2,3,3,3";
+let spmax_autoclicker_level = 0;
+let spmax_autoclicker_cost = "1,2,3,3,3,2,3,3,3";
+let spmax_autoclicker_enabled = true;
+let spmax_target_interval = 1000;
+let lastSpMaxTick = Date.now();
+
+// Addition tab: Successor Power Generator (multiplies successor power by omega automatically)
+let spgen_level = 0;
+let spgen_cost = "1,2,3,3,3,2,3,3,3";
+let spgen_enabled = true;
+let spgen_target_interval = 60000; // 1 minute per generation at level 1
+let lastSpGenTick = Date.now();
+
 // Ticker timestamps (declared up here so toggle functions can safely reset them)
 let lastSuccessorTick = Date.now();
 let lastMaximizeTick = Date.now();
@@ -119,6 +135,21 @@ const maximizeIntervalInput = document.getElementById("maximize-interval-input")
 const successorMinIntervalInfo = document.getElementById("successor-min-interval-info");
 const maximizeMinIntervalInfo = document.getElementById("maximize-min-interval-info");
 
+const spmaxCard = document.getElementById("spmax-autoclicker-card");
+const spmaxInfo = document.getElementById("spmax-autoclicker-information");
+const buySpMaxBtn = document.getElementById("buy-spmax-autoclicker-button");
+const spmaxToggleBtn = document.getElementById("toggle-spmax-autoclicker");
+const spmaxIntervalInput = document.getElementById("spmax-interval-input");
+const spmaxMinIntervalInfo = document.getElementById("spmax-min-interval-info");
+const spmaxUnlockBtn = document.getElementById("addition-upgrade-purchase-button1");
+const spmaxUnlockInfo = document.getElementById("succ-upgrade-addition-1-info");
+const spgenBuyBtn = document.getElementById("addition-upgrade-purchase-button2");
+const spgenBuyInfo = document.getElementById("succ-upgrade-addition-2-info");
+const spgenInfo = document.getElementById("spgen-information");
+const spgenToggleBtn = document.getElementById("toggle-spgen");
+const spgenIntervalInput = document.getElementById("spgen-interval-input");
+const spgenMinIntervalInfo = document.getElementById("spgen-min-interval-info");
+
 
 const factorshiftcost = [
     "1,2",
@@ -172,12 +203,12 @@ function toggleconversion() {
 
 function getSuccessorMinInterval() {
     if (successor_autoclicker_level <= 0) return 0;
-    return Math.max(MIN_HARDWARE_INTERVAL, Math.round(1000 / successor_autoclicker_level));
+    return Math.max(MIN_HARDWARE_INTERVAL,1000 / successor_autoclicker_level);
 }
 
 function getMaximizeMinInterval() {
     if (maximize_autoclicker_level <= 0) return 0;
-    return Math.max(MIN_HARDWARE_INTERVAL, Math.round(1000 / maximize_autoclicker_level));
+    return Math.max(MIN_HARDWARE_INTERVAL,1000 / maximize_autoclicker_level);
 }
 
 function toggleSuccessorAutoclicker() {
@@ -206,10 +237,59 @@ function updateMaximizeInterval(val) {
     }
 }
 
+function getSpMaxMinInterval() {
+    if (spmax_autoclicker_level <= 0) return 0;
+    return Math.max(MIN_HARDWARE_INTERVAL,60000 / spmax_autoclicker_level);
+}
+
+function toggleSpMaxAutoclicker() {
+    spmax_autoclicker_enabled = !spmax_autoclicker_enabled;
+    lastSpMaxTick = Date.now();
+    displayFull();
+}
+
+function updateSpMaxInterval(val) {
+    let parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+        spmax_target_interval = parsed;
+    }
+}
+
+function getSpGenMinInterval() {
+    if (spgen_level <= 0) return 0;
+    return Math.max(MIN_HARDWARE_INTERVAL,60000 / spgen_level);
+}
+
+function toggleSpGen() {
+    spgen_enabled = !spgen_enabled;
+    lastSpGenTick = Date.now();
+    displayFull();
+}
+
+function updateSpGenInterval(val) {
+    let parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+        spgen_target_interval = parsed;
+    }
+}
+
+// Multiply successor power by omega (same effect as successor upgrade 10)
+function multiplySuccessorByOmega() {
+    successoramount = extractsumterms(successoramount).map(x => (Y_Sequence.cmp(x,"") > 0)? x+",2" : "1").join(',');
+}
+
 //////////////////////////// HELPER FUNCTIONS //////////////////////////////////////////
 
 function extractsumterms(input) {
-    return input.split(/(?<!^),1,/g).map((item, index) => (index === 0 ? item : "1," + item));
+    const modified = input.endsWith(",1") ? input + "," : input;
+    return modified
+        .split(/(?<!^),1,/g)
+        .map((item, index) => {
+            if (item === "") return "1";
+            let res = index === 0 ? item : "1," + item;
+            // Xóa dấu phẩy thừa ở cuối nếu có
+            return res.endsWith(",") ? res.slice(0, -1) : res;
+        });
 }
 
 function minY(a, b) {
@@ -355,11 +435,17 @@ function updateUpgradeButtonColors() {
     ];
     checks.push(
         [buySuccessorAutoclickerBtn, successor_autoclicker_cost],
-        [buyMaximizeAutoclickerBtn,  maximize_autoclicker_cost]
+        [buyMaximizeAutoclickerBtn,  maximize_autoclicker_cost],
+        [buySpMaxBtn,                spmax_autoclicker_cost]
+    );
+    // Addition tab upgrades (blue by default, green when buyable; never green once bought)
+    checks.push(
+        [spmaxUnlockBtn, (addition_unlocked && !spmax_unlocked) ? spmaxunlockcost : null],
+        [spgenBuyBtn,    addition_unlocked ? spgen_cost : null]
     );
     for (const [btn, cost] of checks) {
         if (!btn) continue;
-        btn.classList.toggle("affordable", Y_Sequence.cmp(cost, currentOrdinal) <= 0);
+        btn.classList.toggle("affordable", cost !== null && Y_Sequence.cmp(cost, currentOrdinal) <= 0);
     }
 }
 
@@ -382,10 +468,6 @@ function updateDynamicUI() {
 
     updateElement(upgradesuccessorpowerexample, `${startRaw} ↦ ${endRaw}`);
     updateElement(upgradesuccessorpowerexampleconverted, `Which is equivalent to: ${startConverted} ↦ ${endConverted}`);
-
-    // Hide the "converted" lines entirely when conversion is OFF (they'd just duplicate the raw line)
-    setDisplay(notationcoverted, conversionActive());
-    setDisplay(upgradesuccessorpowerexampleconverted, conversionActive());
 }
 
 // Low Frequency: Only called on upgrade/shift/toggle actions
@@ -403,6 +485,28 @@ function updateStaticUI() {
         ? "Addition tab unlocked!"
         : "Unlock the Addition tab for " + formatG(conv(additionunlockcost), currentBase));
     updateElement(succupgradeinfo11, addition_unlocked ? "" : ": unlocks a new upgrade tab");
+
+    // --- ADDITION TAB: unlock successor power maximize autoclicker ---
+    if (spmaxUnlockBtn) spmaxUnlockBtn.disabled = spmax_unlocked;
+    updateElement(spmaxUnlockBtn, spmax_unlocked
+        ? "Successor power maximize autoclicker unlocked!"
+        : "Unlock successor power maximize autoclicker for " + formatG(conv(spmaxunlockcost), currentBase));
+    updateElement(spmaxUnlockInfo, spmax_unlocked ? "" : ": adds a new autoclicker to the Automation tab");
+
+    // --- ADDITION TAB: successor power generator ---
+    updateElement(spgenBuyBtn, `Buy Successor Power Generator for ${formatG(conv(spgen_cost), currentBase)}`);
+    updateElement(spgenBuyInfo, ": multiplies the whole successor power by ω automatically");
+    const spgenTimes = spgen_level === 1 ? "time" : "times";
+    updateElement(spgenInfo, `You have ${spgen_level} successor power generator, which is multiplying the successor power by ω ${spgen_level} ${spgenTimes} per minute`);
+    if (spgenToggleBtn) {
+        spgenToggleBtn.textContent = spgen_enabled ? "ON" : "OFF";
+        spgenToggleBtn.style.backgroundColor = spgen_enabled ? "#4CAF50" : "#f44336";
+    }
+    const minSpGenInt = getSpGenMinInterval();
+    updateElement(spgenMinIntervalInfo, `Minimum Allowed Interval: ${minSpGenInt}ms ${minSpGenInt === MIN_HARDWARE_INTERVAL ? '(Hardware Cap)' : ''}`);
+    if (spgenIntervalInput && document.activeElement !== spgenIntervalInput) {
+        spgenIntervalInput.value = spgen_target_interval;
+    }
 
     const cost = factorshiftcost[factor_shift_level];
     const convertedCost = conv(cost);
@@ -425,6 +529,21 @@ function updateStaticUI() {
     const maxCost = conv(maximize_autoclicker_cost);
     updateElement(maximizeAutoclickerInfo, `You have ${maximize_autoclicker_level} maximize autoclicker, which is clicking the maximize button ${maximize_autoclicker_level} ${maxTimes} per second`);
     updateElement(buyMaximizeAutoclickerBtn, `Buy Maximize Autoclicker for ${formatG(maxCost, currentBase)}`);
+
+    // --- SUCCESSOR POWER MAXIMIZE AUTOCLICKER ---
+    setDisplay(spmaxCard, spmax_unlocked);
+    const spmaxTimes = spmax_autoclicker_level === 1 ? "time" : "times";
+    updateElement(spmaxInfo, `You have ${spmax_autoclicker_level} successor power maximize autoclicker, which is maximizing the successor power ${spmax_autoclicker_level} ${spmaxTimes} per second`);
+    updateElement(buySpMaxBtn, `Buy Successor Power Maximize Autoclicker for ${formatG(conv(spmax_autoclicker_cost), currentBase)}`);
+    if (spmaxToggleBtn) {
+        spmaxToggleBtn.textContent = spmax_autoclicker_enabled ? "ON" : "OFF";
+        spmaxToggleBtn.style.backgroundColor = spmax_autoclicker_enabled ? "#4CAF50" : "#f44336";
+    }
+    const minSpMaxInt = getSpMaxMinInterval();
+    updateElement(spmaxMinIntervalInfo, `Minimum Allowed Interval: ${minSpMaxInt}ms ${minSpMaxInt === MIN_HARDWARE_INTERVAL ? '(Hardware Cap)' : ''}`);
+    if (spmaxIntervalInput && document.activeElement !== spmaxIntervalInput) {
+        spmaxIntervalInput.value = spmax_target_interval;
+    }
 
     // --- AUTOMATION UI CONTROLS UPDATE ---
     if (successorToggleBtn) {
@@ -483,12 +602,12 @@ function updateStaticUI() {
     updateElement(successorupgradepurchasebutton2, "Upgrade successor power by 2 for: " + formatG(succCost2, currentBase));
     updateElement(successorupgradepurchasebutton3, "Upgrade successor power by &omega; for: " + formatG(succCost3, currentBase));
     updateElement(successorupgradepurchasebutton4, "Increase successor power by the lowest sum terms for " + formatG(succCost4, currentBase));
-    updateElement(successorupgradepurchasebutton5, (successorupgrade5unlocked) ? ("Increase successor power by the highest sum terms for " + formatG(succCost5, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+2</sup>", currentBase));
-    updateElement(successorupgradepurchasebutton6, (successorupgrade6unlocked) ? ("Increase successor power by all the monic sum terms for " + formatG(succCost6, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+3</sup>", currentBase));
-    updateElement(successorupgradepurchasebutton7, (successorupgrade7unlocked) ? ("Increase successor power by all the monic sum terms doubled for " + formatG(succCost7, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω+4</sup>", currentBase));
-    updateElement(successorupgradepurchasebutton8, (successorupgrade8unlocked) ? ("Double the successor power for " + formatG(succCost8, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω2</sup>", currentBase));
-    updateElement(successorupgradepurchasebutton9, (successorupgrade9unlocked) ? ("Triple the successor power for " + formatG(succCost9, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω3</sup>", currentBase));
-    updateElement(successorupgradepurchasebutton10, (successorupgrade10unlocked) ? ("Multiply successor power by ω for " + formatG(succCost10, currentBase)) : "Unlock upgrade for " + formatG("ω<sup>ω<sup>2</sup></sup>", currentBase));
+    updateElement(successorupgradepurchasebutton5, (successorupgrade5unlocked) ? ("Increase successor power by the highest sum terms for " + formatG(succCost5, currentBase)) : "Unlock upgrade for " + formatG(succCost5, currentBase));
+    updateElement(successorupgradepurchasebutton6, (successorupgrade6unlocked) ? ("Increase successor power by all the monic sum terms for " + formatG(succCost6, currentBase)) : "Unlock upgrade for " + formatG(succCost6, currentBase));
+    updateElement(successorupgradepurchasebutton7, (successorupgrade7unlocked) ? ("Increase successor power by all the monic sum terms doubled for " + formatG(succCost7, currentBase)) : "Unlock upgrade for " + formatG(succCost7, currentBase));
+    updateElement(successorupgradepurchasebutton8, (successorupgrade8unlocked) ? ("Double the successor power for " + formatG(succCost8, currentBase)) : "Unlock upgrade for " + formatG(succCost8, currentBase));
+    updateElement(successorupgradepurchasebutton9, (successorupgrade9unlocked) ? ("Triple the successor power for " + formatG(succCost9, currentBase)) : "Unlock upgrade for " + formatG(succCost9, currentBase));
+    updateElement(successorupgradepurchasebutton10, (successorupgrade10unlocked) ? ("Multiply successor power by ω for " + formatG(succCost10, currentBase)) : "Unlock upgrade for " + formatG(succCost10, currentBase));
 
     updateElement(succupgradeinfo, ": " + convertedsccuessorpower + " ↦ " + conv(successoramount + ",1"));
     updateElement(succupgradeinfo2, ": " + convertedsccuessorpower + " ↦ " + conv(successoramount + ",1,1"));
@@ -705,7 +824,7 @@ function purchase_successor_power_upgrade10() {
 
     if (Y_Sequence.cmp(successorupgradecost10, currentOrdinal) <= 0) {
         currentOrdinal = "";
-        successoramount = extractsumterms(successoramount).map(x => (Y_Sequence.cmp(x,"") > 0)? x+",2" : "1").join(',') //multiply by w 
+        multiplySuccessorByOmega(); //multiply by w
         successorupgradecost10 = maximizeordinal(successorupgradecost10 + ",2", currentBase-1); //BUFF : markup in base 4 instead
         successorlevel += (currentBase**4);
         displayFull();
@@ -718,6 +837,38 @@ function purchase_successor_power_upgrade11() {
     if (Y_Sequence.cmp(additionunlockcost, currentOrdinal) <= 0) {
         currentOrdinal = "";
         addition_unlocked = true;
+        displayFull();
+    }
+}
+
+function purchase_spmax_unlock() {
+    if (!addition_unlocked || spmax_unlocked) return;
+
+    if (Y_Sequence.cmp(spmaxunlockcost, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        spmax_unlocked = true;
+        displayFull();
+    }
+}
+
+function purchase_spmax_autoclicker() {
+    if (!spmax_unlocked) return;
+
+    if (Y_Sequence.cmp(spmax_autoclicker_cost, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        spmax_autoclicker_level++;
+        spmax_autoclicker_cost = maximizeordinal(spmax_autoclicker_cost + ",2,3", currentBase);
+        displayFull();
+    }
+}
+
+function purchase_spgen() {
+    if (!addition_unlocked) return;
+
+    if (Y_Sequence.cmp(spgen_cost, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        spgen_level++;
+        spgen_cost = maximizeordinal(spgen_cost + ",2,3", currentBase);
         displayFull();
     }
 }
@@ -801,6 +952,15 @@ function saveGame() {
         successorupgrade10unlocked,
         successorupgradecost10,
         addition_unlocked,
+        spmax_unlocked,
+        spmax_autoclicker_level,
+        spmax_autoclicker_cost,
+        spmax_autoclicker_enabled,
+        spmax_target_interval,
+        spgen_level,
+        spgen_cost,
+        spgen_enabled,
+        spgen_target_interval,
         convert_enabled,
         conversion_notation
     };
@@ -850,6 +1010,15 @@ function loadGame() {
             if (data.successorupgrade10unlocked !== undefined) successorupgrade10unlocked = data.successorupgrade10unlocked;
             if (data.successorupgradecost10 !== undefined) successorupgradecost10 = data.successorupgradecost10;
             if (data.addition_unlocked !== undefined) addition_unlocked = data.addition_unlocked;
+            if (data.spmax_unlocked !== undefined) spmax_unlocked = data.spmax_unlocked;
+            if (data.spmax_autoclicker_level !== undefined) spmax_autoclicker_level = data.spmax_autoclicker_level;
+            if (data.spmax_autoclicker_cost !== undefined) spmax_autoclicker_cost = data.spmax_autoclicker_cost;
+            if (data.spmax_autoclicker_enabled !== undefined) spmax_autoclicker_enabled = data.spmax_autoclicker_enabled;
+            if (data.spmax_target_interval !== undefined) spmax_target_interval = data.spmax_target_interval;
+            if (data.spgen_level !== undefined) spgen_level = data.spgen_level;
+            if (data.spgen_cost !== undefined) spgen_cost = data.spgen_cost;
+            if (data.spgen_enabled !== undefined) spgen_enabled = data.spgen_enabled;
+            if (data.spgen_target_interval !== undefined) spgen_target_interval = data.spgen_target_interval;
             if (data.convert_enabled !== undefined) convert_enabled = data.convert_enabled;
             // Old saves have no notation / may hold an unknown value: keep the default instead of undefined
             if (["wY", "BMS", "DBMS", "2-shifted OCF", "EcOCF"].includes(data.conversion_notation)) {
@@ -911,6 +1080,16 @@ function resetGame() {
     successorupgradecost10 = "1,2,3,3";
 
     addition_unlocked = false;
+
+    spmax_unlocked = false;
+    spmax_autoclicker_level = 0;
+    spmax_autoclicker_cost = "1,2,3,3,3,2,3,3,3";
+    spmax_autoclicker_enabled = true;
+    spmax_target_interval = 1000;
+    spgen_level = 0;
+    spgen_cost = "1,2,3,3,3,2,3,3,3";
+    spgen_enabled = true;
+    spgen_target_interval = 60000;
 
     showTab('ordinal-tab');
     displayFull();
@@ -991,7 +1170,35 @@ setInterval(() => {
         }
     }
 
-    if (stateChanged) {
+    let staticChanged = false;
+    if (spmax_unlocked && spmax_autoclicker_level > 0 && spmax_autoclicker_enabled) {
+        const minInterval = getSpMaxMinInterval();
+        const activeInterval = Math.max(minInterval, spmax_target_interval);
+
+        if (now - lastSpMaxTick >= activeInterval) {
+            const maximized = maximizeordinal(successoramount, currentBase);
+            if (maximized !== successoramount) {
+                successoramount = maximized;
+                staticChanged = true;
+            }
+            lastSpMaxTick = now;
+        }
+    }
+
+    if (addition_unlocked && spgen_level > 0 && spgen_enabled) {
+        const minInterval = getSpGenMinInterval();
+        const activeInterval = Math.max(minInterval, spgen_target_interval);
+
+        if (now - lastSpGenTick >= activeInterval) {
+            multiplySuccessorByOmega();
+            lastSpGenTick = now;
+            staticChanged = true;
+        }
+    }
+
+    if (staticChanged) {
+        displayFull();
+    } else if (stateChanged) {
         updateDynamicUI();
     }
 }, 1);
