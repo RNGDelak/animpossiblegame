@@ -6,6 +6,7 @@ let automation_unlocked = false;
 let ObjectiveHtml = document.getElementById("Objective")
 
 let convert_enabled = true
+let conversion_notation = "2-shifted OCF"; // chosen in Setting tab: "wY" | "BMS" | "2-shifted OCF"
 
 // --- AUTOMATION STATE VARIABLES ---
 let successor_autoclicker_enabled = true;
@@ -54,6 +55,9 @@ let successorupgradecost9 = "1,2,3,2,3,2,3"; // w^w*3
 let successorupgrade10unlocked = false;
 let successorupgradecost10 = "1,2,3,3"; // w^w^2
 
+let addition_unlocked = false;
+const additionunlockcost = "1,2,3,3,3";
+
 // Ticker timestamps (declared up here so toggle functions can safely reset them)
 let lastSuccessorTick = Date.now();
 let lastMaximizeTick = Date.now();
@@ -99,10 +103,15 @@ const succupgradeinfo8 = document.getElementById("succ-upgrade-8-info");
 const succupgradeinfo9 = document.getElementById("succ-upgrade-9-info");
 const succupgradeinfo10 = document.getElementById("succ-upgrade-10-info");
 
+const successorupgradepurchasebutton11 = document.getElementById("successor-upgrade-purchase-button11");
+const succupgradeinfo11 = document.getElementById("succ-upgrade-11-info");
+const additionTabOpenBtns = document.querySelectorAll(".addition-nav-btn");
+
 // Cache DOM Elements for Automation Controls
 const successorToggleBtn = document.getElementById("toggle-successor-autoclicker");
 const maximizeToggleBtn = document.getElementById("toggle-maximize-autoclicker");
 const conversionToggleBtn = document.getElementById("toggle-conversion-btn");
+const conversionSelectBox = document.getElementById("conversion-selectbox");
 
 const successorIntervalInput = document.getElementById("successor-interval-input");
 const maximizeIntervalInput = document.getElementById("maximize-interval-input");
@@ -123,12 +132,34 @@ const factorshiftcost = [
 
 //////////////////////////// CONVERSION HELPER //////////////////////////////////////////
 
-// Single entry point for notation conversion. Respects the ON/OFF toggle.
+// True when a real conversion (not plain ω-Y) is being displayed
+function conversionActive() {
+    return convert_enabled && conversion_notation !== "wY";
+}
+
+// Single entry point for notation conversion. Respects the ON/OFF toggle and the chosen notation.
 function conv(ord) {
-    if (!convert_enabled) {
-        return (ord === "Limit") ? "Limit" : "&omega;-Y(" + ord + ")";
+    const raw = (ord === "Limit") ? "Limit" : "&omega;-Y(" + ord + ")";
+    if (!conversionActive()) return raw;
+    if (ord === "Limit") return convert_From_wY(ord, conversion_notation);
+    if (!ord) return "0";
+
+    let result;
+    try {
+        result = convert_From_wY(ord, conversion_notation);
+    } catch (e) {
+        console.error("Conversion failed for", ord, "in", conversion_notation, e);
+        return raw;
     }
-    return convert_From_wY(ord, "2-shifted OCF");
+    // Ordinal is beyond the range the chosen notation can handle: show it as plain ω-Y
+    if (result === undefined || result === ord) return raw;
+    return result;
+}
+
+function setNotation(value) {
+    conversion_notation = value;
+    displayFull();
+    saveGame();
 }
 
 function toggleconversion() {
@@ -178,7 +209,7 @@ function updateMaximizeInterval(val) {
 //////////////////////////// HELPER FUNCTIONS //////////////////////////////////////////
 
 function extractsumterms(input) {
-    return input.split(/(?<!^),1/g).map((item, index) => (index === 0 ? item : "1" + item));
+    return input.split(/(?<!^),1,/g).map((item, index) => (index === 0 ? item : "1," + item));
 }
 
 function minY(a, b) {
@@ -342,7 +373,7 @@ function updateDynamicUI() {
     updateElement(numberdisplay, isOrdEmpty ? "0" : formatG(`&omega;-Y(${currentOrdinal})`, currentBase));
     updateElement(notationcoverted, isOrdEmpty ? "0" : formatG(convertedCurrent, currentBase));
 
-    const addedvalue = addY(currentOrdinal, successoramount);
+    const addedvalue = addY(currentOrdinal, successoramount); 
     const convertedvalue = conv(addedvalue);
     const startRaw = isOrdEmpty ? "0" : formatG(`&omega;-Y(${currentOrdinal})`, currentBase);
     const startConverted = isOrdEmpty ? "0" : formatG(convertedCurrent, currentBase);
@@ -353,14 +384,25 @@ function updateDynamicUI() {
     updateElement(upgradesuccessorpowerexampleconverted, `Which is equivalent to: ${startConverted} ↦ ${endConverted}`);
 
     // Hide the "converted" lines entirely when conversion is OFF (they'd just duplicate the raw line)
-    setDisplay(notationcoverted, convert_enabled);
-    setDisplay(upgradesuccessorpowerexampleconverted, convert_enabled);
+    setDisplay(notationcoverted, conversionActive());
+    setDisplay(upgradesuccessorpowerexampleconverted, conversionActive());
 }
 
 // Low Frequency: Only called on upgrade/shift/toggle actions
 function updateStaticUI() {
     unlockautomationbtn.style.display = (factor_shift_level === 5) ? "block" : "none";
     open_automation_btn.style.display = automation_unlocked ? "block" : "none";
+    additionTabOpenBtns.forEach(btn => setDisplay(btn, addition_unlocked));
+    if (!addition_unlocked) {
+        // Locked (e.g. after a reset/import): never leave the player stranded on the Addition tab
+        const addTab = document.getElementById("addition-tab");
+        if (addTab && addTab.style.display !== "none") showTab("upgrade-tab");
+    }
+    if (successorupgradepurchasebutton11) successorupgradepurchasebutton11.disabled = addition_unlocked;
+    updateElement(successorupgradepurchasebutton11, addition_unlocked
+        ? "Addition tab unlocked!"
+        : "Unlock the Addition tab for " + formatG(conv(additionunlockcost), currentBase));
+    updateElement(succupgradeinfo11, addition_unlocked ? "" : ": unlocks a new upgrade tab");
 
     const cost = factorshiftcost[factor_shift_level];
     const convertedCost = conv(cost);
@@ -399,6 +441,11 @@ function updateStaticUI() {
         conversionToggleBtn.style.backgroundColor = convert_enabled ? "#4CAF50" : "#f44336";
     }
 
+    if (conversionSelectBox) {
+        if (conversionSelectBox.value !== conversion_notation) conversionSelectBox.value = conversion_notation;
+        conversionSelectBox.disabled = !convert_enabled;
+    }
+
     const minSuccInt = getSuccessorMinInterval();
     const minMaxInt = getMaximizeMinInterval();
 
@@ -430,7 +477,7 @@ function updateStaticUI() {
     const monicSuccessor = monictify(successoramount);
 
     updateElement(upgradesuccessorpowerinformation, "Your current successor power is: " + convertedsccuessorpower + " (in ω-Y terms: " + successoramount + ")");
-    updateElement(successorupgradeinformation, "You have upgraded successor for " + successorlevel + " " + timesText2 + ", which equilvalent to the boost of " + (successorlevel + 1) + "x");
+    updateElement(successorupgradeinformation, "You have upgraded successor for " + successorlevel + " " + timesText2 + ", which is equivalent to the boost of " + (successorlevel + 1) + "x");
 
     updateElement(successorupgradepurchasebutton, "Upgrade successor power by 1 for: " + formatG(succCost1, currentBase));
     updateElement(successorupgradepurchasebutton2, "Upgrade successor power by 2 for: " + formatG(succCost2, currentBase));
@@ -665,6 +712,16 @@ function purchase_successor_power_upgrade10() {
     }
 }
 
+function purchase_successor_power_upgrade11() {
+    if (addition_unlocked) return;
+
+    if (Y_Sequence.cmp(additionunlockcost, currentOrdinal) <= 0) {
+        currentOrdinal = "";
+        addition_unlocked = true;
+        displayFull();
+    }
+}
+
 function maximizesuccessor() {
     successoramount = maximizeordinal(successoramount, currentBase);
     displayFull();
@@ -743,7 +800,9 @@ function saveGame() {
         successorupgradecost9,
         successorupgrade10unlocked,
         successorupgradecost10,
-        convert_enabled
+        addition_unlocked,
+        convert_enabled,
+        conversion_notation
     };
     localStorage.setItem("y_sequence_incremental_save", JSON.stringify(saveData));
 }
@@ -790,7 +849,12 @@ function loadGame() {
             if (data.successorupgradecost9 !== undefined) successorupgradecost9 = data.successorupgradecost9;
             if (data.successorupgrade10unlocked !== undefined) successorupgrade10unlocked = data.successorupgrade10unlocked;
             if (data.successorupgradecost10 !== undefined) successorupgradecost10 = data.successorupgradecost10;
+            if (data.addition_unlocked !== undefined) addition_unlocked = data.addition_unlocked;
             if (data.convert_enabled !== undefined) convert_enabled = data.convert_enabled;
+            // Old saves have no notation / may hold an unknown value: keep the default instead of undefined
+            if (["wY", "BMS", "DBMS", "2-shifted OCF", "EcOCF"].includes(data.conversion_notation)) {
+                conversion_notation = data.conversion_notation;
+            }
 
             if (factor_shift_level > 5) factor_shift_level = 5;
             currentBase = 10 - factor_shift_level;
@@ -846,6 +910,8 @@ function resetGame() {
     successorupgrade10unlocked = false;
     successorupgradecost10 = "1,2,3,3";
 
+    addition_unlocked = false;
+
     showTab('ordinal-tab');
     displayFull();
 }
@@ -858,10 +924,14 @@ function resetGame() {
 document.getElementById("click-button").onclick = () => applySuccessor(true);
 document.getElementById("maximize-button").onclick = () => applyMaximize(true);
 factorshiftButton.onclick = buyfactorshift;
+if (conversionSelectBox) {
+    conversionSelectBox.addEventListener("change", () => setNotation(conversionSelectBox.value));
+}
 
 // Key Listeners
 document.addEventListener("keydown", (event) => {
-    if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return; // don't hijack Ctrl+S, Cmd+M, etc.
 
     const key = event.key.toLowerCase();
     if (key === 's') {
