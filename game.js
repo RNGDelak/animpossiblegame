@@ -281,15 +281,28 @@ function multiplySuccessorByOmega() {
 //////////////////////////// HELPER FUNCTIONS //////////////////////////////////////////
 
 function extractsumterms(input) {
-    const modified = input.endsWith(",1") ? input + "," : input;
-    return modified
-        .split(/(?<!^),1,/g)
-        .map((item, index) => {
-            if (item === "") return "1";
-            let res = index === 0 ? item : "1," + item;
-            // Xóa dấu phẩy thừa ở cuối nếu có
-            return res.endsWith(",") ? res.slice(0, -1) : res;
-        });
+    // If input is a string, convert it to an array of numbers/strings separated by commas
+    const arr = typeof input === 'string' ? input.split(',') : input;
+    
+    const result = [];
+    let currentSub = [];
+    
+    for (let i = 0; i < arr.length; i++) {
+        // If we encounter '1' and we already have items in the current subsequence,
+        // it means a new subsequence starts here.
+        if (arr[i] === '1' && currentSub.length > 0) {
+            result.push(currentSub.join(','));
+            currentSub = [];
+        }
+        currentSub.push(arr[i]);
+    }
+    
+    // Push the last remaining subsequence
+    if (currentSub.length > 0) {
+        result.push(currentSub.join(','));
+    }
+    
+    return result;
 }
 
 function minY(a, b) {
